@@ -1,6 +1,7 @@
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import localFont from "next/font/local";
-import { theme } from "./styles/global-themes";
+import { theme } from "./styles/global-theme";
+import AppBarGlobal from "./components/appbar-global";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -26,6 +27,7 @@ export default function RootLayout({ children }) {
       >
         <ThemeProvider theme={theme}>
           <CssBaseline />
+          <AppBarGlobal />
           {children}
         </ThemeProvider>
       </body>
