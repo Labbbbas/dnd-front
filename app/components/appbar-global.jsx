@@ -1,7 +1,26 @@
 "use client";
 import { AppBar, Toolbar, Typography } from "@mui/material";
+import { useEffect, useState } from "react";
 
-export default function AppBarGlobal() {
+const AppBarGlobal = () => {
+    const messages = [
+        "You're the D&Definition of awesome!",
+        "Let's D&Dive into the adventure!",
+        "Ready to D&Dare greatly today?",
+        "Don't worry, we've got this D&Down to a science.",
+        "No D&Doubt, you're going to crush this campaign!",
+        "Let's D&Dazzle them with your skills!",
+        "You're the D&Dream team every DM needs.",
+        "It's time to D&Dedicate yourself to epic storytelling!",
+        "You've got the D&Drive to defeat any dragon!",
+    ];
+    const [randomMessage, setRandomMessage] = useState("");
+    useEffect(() => {
+        const getRandomMessage = () => {
+            return messages[Math.floor(Math.random() * messages.length)];
+        };
+        setRandomMessage(getRandomMessage());
+    }, []);
     return (
         <AppBar position="static">
         <Toolbar
@@ -12,9 +31,10 @@ export default function AppBarGlobal() {
                 component="div"
                 fontFamily={"Georgia"}
             >
-            Just D&Deal With It
+            {randomMessage}
             </Typography>
         </Toolbar>
         </AppBar>
     );
     }
+export default AppBarGlobal;
