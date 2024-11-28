@@ -4,15 +4,25 @@ import { useEffect, useState } from "react";
 
 const AppBarGlobal = () => {
     const messages = [
-        "You're the D&Definition of awesome!",
-        "Let's D&Dive into the adventure!",
-        "Ready to D&Dare greatly today?",
-        "Don't worry, we've got this D&Down to a science.",
-        "No D&Doubt, you're going to crush this campaign!",
-        "Let's D&Dazzle them with your skills!",
-        "You're the D&Dream team every DM needs.",
-        "It's time to D&Dedicate yourself to epic storytelling!",
-        "You've got the D&Drive to defeat any dragon!",
+        "Just D&Deal With it!",
+        "It's time to D&Destroy the darkness!",
+        "D&Declare your victory!",
+        "Only you can D&Define your destiny!",
+        "You have the power to D&Decide your fate!",
+        "D&Deceive the enemy!",
+        "D&Defy the odds!",
+        "D&Deem yourself heroic",
+        "D&Dear memories await!",
+        "Step into the world of daring D&Deeds.",
+        "Will you D&Deem yourself worthy?",
+        "Your D&Dear companions await your command.",
+        "Prepare for a world full of D&Delightful challenges.",
+        "Let's craft some unforgettable D&Dear stories.",
+        "D&Dear Dungeon Masters, your stage awaits.",
+        "This journey will test your D&Decency and courage.",
+        "D&Dear legends are forged in battle.",
+        "Every D&Detail matters in your quest.",
+        "Only D&Diligent explorers uncover the secrets.",
     ];
     const [randomMessage, setRandomMessage] = useState("");
     useEffect(() => {
