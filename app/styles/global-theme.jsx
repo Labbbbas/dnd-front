@@ -1,10 +1,11 @@
 "use client";
 
-import { createTheme } from "@mui/material";
+import { createTheme } from '@mui/material/styles';
 
-export const theme = createTheme({
+// Definición de temas
+const lightTheme = createTheme({
   palette: {
-    mode: 'dark',
+    mode: "light",
     primary: {
       main: '#f939ff',
     },
@@ -12,8 +13,24 @@ export const theme = createTheme({
       main: '#fb2e2e',
     },
   },
-
   typography: {
     fontFamily: "Arial, sans-serif",
   },
 });
+
+const darkTheme = createTheme({
+  palette: {
+    mode: "dark",
+    primary: {
+      main: '#f939ff',
+    },
+    secondary: {
+      main: '#fb2e2e',
+    },
+  },
+  typography: {
+    fontFamily: "Arial, sans-serif",
+  },
+});
+
+export { lightTheme, darkTheme };
