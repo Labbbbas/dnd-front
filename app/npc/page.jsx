@@ -89,7 +89,7 @@ export default function Npcs() {
       const response = await axios.get("http://127.0.0.1:5000/api/v1/npcs");
       setRows(response.data); // Set the fetched npcs to the state
     } catch (error) {
-      console.error("Error fetching npcs", error);
+      //console.error("Error fetching npcs", error);
       // Display an alert if there is an error
       setAlert({
         message: "Failed to load npcs",
@@ -101,7 +101,7 @@ export default function Npcs() {
 
   // Handle the npc actions (add or edit)
   const handleNpc = ({ action, npcData }) => {
-    console.info("Handle npc action:", action);
+    //console.info("Handle npc action:", action);
     setAction(action); // Set the current action (add/edit)
     setOpenDialog(true); // Open the dialog
     // If adding a npc, clear the form fields
@@ -119,7 +119,7 @@ export default function Npcs() {
     } else if (action === "edit") {
       setNpc(npcData); // If editing, load the npc data into the form
     } else {
-      console.warn("Unknown action:", action);
+      //console.warn("Unknown action:", action);
     }
   };
 
@@ -133,7 +133,7 @@ export default function Npcs() {
         severity: "success",
       });
     } catch (error) {
-      console.error("Error deleting npc: ", error);
+      //console.error("Error deleting npc: ", error);
       setAlert({
         message: "Failed to delete npc",
         severity: "error",
