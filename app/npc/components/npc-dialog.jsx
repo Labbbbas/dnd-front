@@ -37,7 +37,7 @@ export default function NpcDialog({
           severity: "success", // Set the message severity as success
         });
       } catch (error) {
-        console.error("Error adding npc: ", error);
+        //console.error("Error adding npc: ", error);
         setAlert({
           message: "Failed to add NPC", // Error message
           severity: "error", // Set the message severity as error
