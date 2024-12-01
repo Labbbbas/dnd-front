@@ -21,7 +21,8 @@ export default function NpcDialog({
   npcCards,      // List of current NPC cards
   setNpcCards,   // Function to update the list of NPC cards
   setAlert,      // Function to set alert messages
-  setOpenAlert   // Function to control alert visibility
+  setOpenAlert,   // Function to control alert visibility
+  setVisible
 }) {
 
   // Close the dialog when the user clicks cancel or closes it
@@ -57,7 +58,10 @@ export default function NpcDialog({
     if (action === "add") { // If the action is "add"
       try {
         const response = await axios.post("http://127.0.0.1:5000/api/v1/npcs", npcData); // Send data to the server to add the npc
-        setNpcCards([...npcCards, response.data]); // Add the new npc to the list
+        setNpcCards((prevNpcCards) => {
+          const newNpcCards = [...prevNpcCards, response.data]; // Add the new npc to the list 
+          setVisible((prevVisible) => [...prevVisible, newNpcCards.length - 1]); // Animate the new npc 
+          return newNpcCards; });
         setAlert({
           message: "Behold! Your creation is alive", // Success message
           severity: "success", // Set the message severity as success
@@ -132,7 +136,7 @@ export default function NpcDialog({
   const handleChange = (event) => {
     setNpc({
       ...npcData, // Keep the current npc data and update only the changed field
-      [event.target.name]: event.target.value, // Set the new value for the specific field
+      [event.target.name]: event.target.value || "", // Set the new value for the specific field
     });
   };
 
@@ -188,9 +192,9 @@ export default function NpcDialog({
                 margin="dense"
                 size="small"
                 name="picture"
-                label="Picture"
+                label="Picture URL"
                 fullWidth
-                value={npcData.picture}
+                value={npcData.picture || ""}
                 onChange={handleChange}
               />
             </Grid>
