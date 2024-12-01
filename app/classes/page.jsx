@@ -12,7 +12,7 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { DataGrid } from "@mui/x-data-grid";
 
 // Import custom components for dialogs and alerts
-import ClassDialog from "./components/classDialog";
+import ClassDialog from "./components/class-dialog";
 import Alerts from "../components/alerts";
 
 // React hooks for state management
@@ -23,40 +23,157 @@ import axios from "axios";
 
 export default function Classes() {
   // Define columns for the DataGrid table
+  // Each column has an appropriate width and flex to make it look aesthetic
   const columns = [
-    { field: "_id", headerName: "ID", width: 30 },
-    { field: "role", headerName: "Class", flex: 2 },
-    { field: "description", headerName: "Description", flex: 1 },
-    { field: "hd", headerName: "Hit Die", flex: 1 },
-    { field: "pa", headerName: "Primary Ability", flex: 1 },
-    { field: "stp", headerName: "Saving Throw Proficiencies", flex: 1 },
-    { field: "awp", headerName: "Armor and Weapon Proficiencies", flex: 1 },
-    // Commented out extra field
-    // { field: "extra", headerName: "Extra", flex: 1 },
     {
-      field: "actions",
-      headerName: "Actions",
-      width: 100,
+      field: "role", 
+      headerName: "Class",
+      flex: 1,
+      sortable: false, // Disable sorting
+      disableColumnMenu: true, // Disable column menu
+      headerAlign: "center", 
+      align: "center",
+      renderHeader: () => (
+        <Box sx={{ fontWeight: 'bold', textAlign: 'center' }}>
+          Class
+        </Box>
+      ),
       renderCell: (params) => (
-        <Box>
+        // So it doesn't look so crowded
+        <Box sx={{ paddingTop: '8px', paddingBottom: '8px', textAlign: 'center' }}>
+          {params.value}
+        </Box>
+      ),
+    },
+    {
+      field: "description", 
+      headerName: "Description", 
+      flex: 2, 
+      sortable: false, // Disable sorting
+      disableColumnMenu: true, // Disable column menu
+      headerAlign: "center", 
+      align: "left", 
+      renderHeader: () => (
+        <Box sx={{ fontWeight: 'bold', textAlign: 'center' }}>
+          Description
+        </Box>
+      ),
+      renderCell: (params) => (
+        <Box sx={{ 
+          whiteSpace: 'normal', 
+          wordWrap: 'break-word', 
+          textAlign: 'justify', 
+          paddingTop: '8px', 
+          paddingBottom: '8px' 
+        }}>
+          {params.value}
+        </Box>
+      ),
+    },
+    {
+      field: "hd", 
+      headerName: "Hit Die", 
+      width: 70, 
+      sortable: false, // Disable sorting
+      disableColumnMenu: true, // Disable column menu
+      headerAlign: "center", 
+      align: "center",
+      renderHeader: () => (
+        <Box sx={{ fontWeight: 'bold', textAlign: 'center' }}>
+          Hit Die
+        </Box>
+      ),
+      renderCell: (params) => (
+        <Box sx={{ paddingTop: '8px', paddingBottom: '8px', textAlign: 'center' }}>
+          {params.value}
+        </Box>
+      ),
+    },
+    {
+      field: "pa", 
+      headerName: "Primary Ability", 
+      width: 160, 
+      sortable: false, // Disable sorting
+      disableColumnMenu: true, // Disable column menu
+      headerAlign: "center", 
+      align: "center", 
+      renderHeader: () => (
+        <Box sx={{ fontWeight: 'bold', textAlign: 'center' }}>
+          Primary Ability
+        </Box>
+      ),
+      renderCell: (params) => (
+        <Box sx={{ paddingTop: '8px', paddingBottom: '8px', textAlign: 'center' }}>
+          {params.value}
+        </Box>
+      ),
+    },
+    {
+      field: "stp", 
+      headerName: "Saving Throw Proficiencies", 
+      width: 200, 
+      sortable: false, // Disable sorting
+      disableColumnMenu: true, // Disable column menu
+      headerAlign: "center", 
+      align: "center", 
+      renderHeader: () => (
+        <Box sx={{ fontWeight: 'bold', textAlign: 'center' }}>
+          Saving Throw Proficiencies
+        </Box>
+      ),
+      renderCell: (params) => (
+        <Box sx={{ paddingTop: '8px', paddingBottom: '8px', textAlign: 'center' }}>
+          {params.value}
+        </Box>
+      ),
+    },
+    {
+      field: "awp", 
+      headerName: "Armor and Weapon Proficiencies", 
+      width: 240, 
+      sortable: false, // Disable sorting
+      disableColumnMenu: true, // Disable column menu
+      headerAlign: "center", 
+      align: "justify", 
+      renderHeader: () => (
+        <Box sx={{ fontWeight: 'bold', textAlign: 'center' }}>
+          Armor and Weapon Proficiencies
+        </Box>
+      ),
+      renderCell: (params) => (
+        <Box sx={{ 
+          whiteSpace: 'normal', 
+          wordWrap: 'break-word', 
+          textAlign: 'justify', 
+          paddingTop: '8px', 
+          paddingBottom: '8px' 
+        }}>
+          {params.value}
+        </Box>
+      ),
+    },
+    {
+      field: "actions", 
+      headerName: "", 
+      width: 120,
+      sortable: false, // Disable sorting
+      disableColumnMenu: true, // Disable column menu
+      renderCell: (params) => (
+        <Box sx={{ paddingTop: '8px', paddingBottom: '8px', textAlign: 'center' }}>
           {/* Edit button */}
-          <IconButton
-            color="primary"
-            onClick={() => handleClass({ action: "edit", classData: params.row })}
-          >
+          <IconButton color="primary" onClick={() => handleClass({ action: "edit", classData: params.row })}>
             <AutoFixHighIcon />
           </IconButton>
           {/* Delete button */}
-          <IconButton
-            color="secondary"
-            onClick={() => deleteClass(params.row._id)}
-          >
-            <WhatshotIcon /> {/* Change icon color to red */}
+          <IconButton color="secondary" onClick={() => deleteClass(params.row._id)}>
+            <WhatshotIcon />
           </IconButton>
         </Box>
       ),
     },
   ];
+  
+  
 
   // State variables to manage data and UI states
   const [action, setAction] = useState(""); // Action (edit, add)
@@ -75,7 +192,6 @@ export default function Classes() {
     pa: "",
     stp: "",
     awp: "",
-    // extra: ""
   }); // Class data to be added or edited
 
   // Fetch the classes from the server when the component is mounted
@@ -114,7 +230,6 @@ export default function Classes() {
         pa: "",
         stp: "",
         awp: "",
-        // extra: ""
       });
     } else if (action === "edit") {
       setClass(classData); // If editing, load the class data into the form
@@ -143,82 +258,68 @@ export default function Classes() {
   };
 
   return (
-    <Container maxWidth="xl" disableGutters>
-      {/* Button to add a new class */}
-      <Box sx={{ display: "flex", justifyContent: "center", mb: 2, mt: 2 }}>
-        <Button
-          startIcon={<AddCircleIcon />}
-          variant="contained"
-          sx={{ borderRadius: 3 }}
-          onClick={() => handleClass({ action: "add" })}
-        >
-          Add Class
-        </Button>
-      </Box>
+    <Box sx={{ minHeight: '100vh', paddingBottom: '50px' }}> {/* Add a blank space in the bottom */}
+      <Container maxWidth="xl" disableGutters>
+        {/* Button to add a new class */}
+        <Box sx={{ display: "flex", justifyContent: "center", mb: 2, mt: 2 }}>
+          <Button
+            startIcon={<AddCircleIcon />}
+            variant="contained"
+            sx={{ borderRadius: 3 }}
+            onClick={() => handleClass({ action: "add" })}
+          >
+            Create Class
+          </Button>
+        </Box>
 
-      {/* DataGrid table for displaying classes */}
-      <Paper
-        sx={{
-          padding: 2,
-          borderRadius: 2,
-          maxWidth: "80%",
-          margin: "0 auto",
-          height: "400px",
-        }}
-      >
-        <DataGrid
-          columns={columns} // Columns to display
-          rows={rows} // Data to populate the table
-          getRowId={(row) => row._id} // Unique ID for each row
-          initialState={{
-            pagination: {
-              paginationModel: { page: 0, pageSize: 5 },
-            },
-          }}
-          pageSizeOptions={[5, 10]} // Page size options for pagination
-          sx={{
-            border: "1px solid #DDD", // Border for the table
-            backgroundColor: "#F9F9F9", // Table background color
-            "& .MuiDataGrid-columnHeaderTitle": {
-              fontWeight: "bold", // Bold headers
-            },
-            "& .MuiDataGrid-columnHeaders": {
-              borderBottom: "2px solid #DDD", // Divider between headers and rows
-            },
-            "& .MuiDataGrid-row:hover": {
-              backgroundColor: "#F5F5F5", // Hover effect on rows
-            },
-            "& .MuiDataGrid-cell": {
-              borderRight: "1px solid #DDD", // Divider between cells
-              color: "black", // Text color for cells
-            },
-            "& .MuiDataGrid-footerContainer": {
-              backgroundColor: "#F1F1F1", // Footer background color
-            },
-          }}
+        {/* DataGrid table for displaying classes */}
+        <Paper sx={{ 
+          overflow: 'auto', // Enables scrolling if content overflows
+          maxHeight: 'calc(100vh - 100px)', // Sets a maximum height based on the viewport height minus 100px
+          width: '80%', // Sets the width to 80% of the parent container
+          maxWidth: '1200px', // Sets a maximum fixed width for the Paper component
+          margin: '0 auto', // Centers the Paper horizontally
+        }}>
+          <DataGrid
+            columns={columns} // The columns that you already have defined
+            rows={rows} // The data that you already have
+            getRowId={(row) => row._id} // Unique identifier for each row, based on _id
+            autoHeight // Automatically adjusts the row height based on content
+            initialState={{
+              pagination: {
+                paginationModel: { page: 0, pageSize: 5 }, // Default page and page size
+              },
+            }}
+            pageSizeOptions={[5, 10]} // Options for the pagination to choose page sizes
+            components={{
+              ColumnHeader: () => null, // Customizes the column header, here it hides it
+            }}
+            getRowHeight={() => 'auto'} // Allows the row height to be auto-adjusted based on content
+          />
+        </Paper>
+
+
+        {/* Dialog for adding or editing a class */}
+        <ClassDialog
+          open={openDialog}
+          setOpen={setOpenDialog}
+          classData={classData}
+          setClass={setClass}
+          action={action}
+          rows={rows}
+          setRows={setRows}
+          setAlert={setAlert}
+          setOpenAlert={setOpenAlert}
         />
-      </Paper>
 
-      {/* Dialog for adding or editing a class */}
-      <ClassDialog
-        open={openDialog}
-        setOpen={setOpenDialog}
-        classData={classData}
-        setClass={setClass}
-        action={action}
-        rows={rows}
-        setRows={setRows}
-        setAlert={setAlert}
-        setOpenAlert={setOpenAlert}
-      />
-
-      {/* Alert component to show error or success messages */}
-      <Alerts
-        open={openAlert}
-        setOpen={setOpenAlert}
-        alert={alert}
-        setAlert={setAlert}
-      />
-    </Container>
+        {/* Alert component to show error or success messages */}
+        <Alerts
+          open={openAlert}
+          setOpen={setOpenAlert}
+          alert={alert}
+          setAlert={setAlert}
+        />
+      </Container>
+    </Box>
   );
 }
