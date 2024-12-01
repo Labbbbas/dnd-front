@@ -111,7 +111,7 @@ export default function Classes() {
     {
       field: "stp", 
       headerName: "Saving Throw Proficiencies", 
-      width: 200, 
+      width: 210, 
       sortable: false, // Disable sorting
       disableColumnMenu: true, // Disable column menu
       headerAlign: "center", 
@@ -238,13 +238,30 @@ export default function Classes() {
     }
   };
 
+  // Random messages for fun when deleting a class
+  const randDeleteMessage = () => {
+    const messages = [
+      "The wizard’s scrolls vanish in a puff of arcane smoke. The class has been erased from existence!",
+      "The rogue has disarmed the trap... and the class! It's gone forever.",
+      "The bard sang a mournful tune. The class has been deleted.",
+      "The barbarian smashed the table! This class is no more.",
+      "The cleric cast Banish. The class has been sent to another plane.",
+      "The ranger tracked the class to the void. It will trouble you no more.",
+      "The paladin judged this class unworthy. Smited and deleted!",
+      "The warlock's pact ends here. This class is obliterated!",
+      "The dungeon master declares: The class is no longer canon!",
+      "The druid transforms it into... nothingness. Class deleted!",
+    ];
+    return messages[Math.floor(Math.random() * messages.length)];
+  };
+
   // Delete a class from the database
   const deleteClass = async (id) => {
     try {
       await axios.delete(`http://127.0.0.1:5000/api/v1/classes/${id}`);
       setRows(rows.filter((row) => row._id !== id)); // Remove the deleted class from the table
       setAlert({
-        message: "Class deleted successfully",
+        message: randDeleteMessage(), // Random message for fun
         severity: "success",
       });
     } catch (error) {
