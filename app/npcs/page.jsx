@@ -34,11 +34,12 @@ export default function Npcs() {
     _id: null,
     named: "",
     role: "",
+    picture: "",
     personality: "",
     inventory: "",
-    backstory: "",
     likes: "",
     money: "",
+    backstory: "",
   });
 
   // Fetch NPC data when the component mounts
@@ -101,12 +102,21 @@ export default function Npcs() {
       <Grid container spacing={4} justifyContent={"center"}>
         {npcCards.map((iterator) => (
           <Grid xs={12} sm={4} md={2} key={iterator._id}>
-            <Card onClick={() => handleNpc({ action: "view", npcData: iterator })} sx={{ maxWidth: 345, borderRadius: 4 }}>
+            <Card onClick={() => handleNpc({ action: "view", npcData: iterator })}
+              sx={{
+                maxWidth: 345,
+                borderRadius: 4,
+                "&:hover": {
+                  transform: "scale(1.05)", // Scale on hover
+                  boxShadow: "0px 0px 15px 5px rgba(255, 255, 255, 0.8)", // Increase box-shadow on hover
+                  filter: "brightness(1.3)", // Brighten the card on hover
+                },
+                }}>
               <CardMedia
                 component="img"
-                alt="npc"
+                alt="NPC"
                 height="300"
-                image="https://steamuserimages-a.akamaihd.net/ugc/1786217296714225568/21960EF27D560EE2B26CE38F557235BAAE6AE383/?imw=637&imh=358&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true"
+                image={iterator.picture}
               />
               <CardContent>
                 <Typography gutterBottom variant="h5" component="div">
@@ -117,6 +127,9 @@ export default function Npcs() {
                 </Typography>
                 <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                   {iterator.likes}
+                </Typography>
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                  {iterator.money}
                 </Typography>
               </CardContent>
               <CardActions sx={{ justifyContent: "right" }}>

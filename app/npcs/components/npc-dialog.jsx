@@ -5,9 +5,11 @@ import {
   DialogActions,
   Button,
   TextField,
-  Typography
+  Typography,
 } from "@mui/material";
+import Grid from "@mui/material/Grid";
 import axios from "axios";
+import { useEffect, useState } from "react";
 
 // This component handles showing the dialog for adding, editing, or viewing a NPC
 export default function NpcDialog({
@@ -26,6 +28,29 @@ export default function NpcDialog({
   const handleCloseDialog = () => {
     setOpen(false); // Close the dialog
   };
+  
+  const [randomMessage, setRandomMessage] = useState("");
+  const randomMessages = [
+    "The arcane ritual is incomplete! Fill in every rune to summon your NPC.",
+    "The weave rejects your creation. Ensure all elements are in place for your NPC to rise.",
+    "Your incantation falters! Fill every field, or the magic will fade into the void",
+    "The gods demand more! Every piece of the puzzle must be set for your NPC to awaken.",
+    "The summoning circle flickers. Complete the runes to ensure their arrival.",
+    "Incomplete spells yield incomplete souls. Finish the chant to craft your NPC.",
+    "The tome of creation remains unfinished. Inscribe all details to bring your NPC to life.",
+    "Without all the required sigils, the NPC is but a fleeting shadow.",
+    "The essence of the NPC is scattered. Only you can unite it by completing all fields.",
+    "The gods grow impatient! Grant your NPC the details they deserve.",
+    "Your NPC waits in the void. Finish the ritual and give them life."
+  ];
+
+  const RandomPick = () => {
+    const randomIndex = Math.floor(Math.random() * randomMessages.length);
+    setRandomMessage(randomMessages[randomIndex]);
+  }
+  useEffect(() => {
+    RandomPick();
+  }, []);
 
   // Save the npc data based on whether it's an "add" or "edit" action
   const saveNpc = async () => {
@@ -34,34 +59,73 @@ export default function NpcDialog({
         const response = await axios.post("http://127.0.0.1:5000/api/v1/npcs", npcData); // Send data to the server to add the npc
         setNpcCards([...npcCards, response.data]); // Add the new npc to the list
         setAlert({
-          message: "Npc added successfully", // Success message
+          message: "Behold! Your creation is alive", // Success message
           severity: "success", // Set the message severity as success
         });
+        setOpenAlert(true);
+        handleCloseDialog();
       } catch (error) {
-        setAlert({
-          message: "Failed to add NPC", // Error message
-          severity: "error", // Set the message severity as error
-        });
+        if (error.response.status) {
+          switch (error.response.status) {
+            case 400:
+              setAlert({
+                message: randomMessage, // Error message
+                severity: "error", // Set the message severity as error
+              });
+              break;
+            default:
+              setAlert({
+                message: "Failed to add NPC", // Error message
+                severity: "error", // Set the message severity as error
+              });
+              break;
+           }
+        } else {
+          setAlert({
+            message: randomMessage, // Error message
+            severity: "error" + error, // Set the message severity as error
+          });
+        }
       }
       setOpenAlert(true); // Show the alert
-
+      RandomPick();
     } else if (action === "edit") { // If the action is "edit"
       try {
         const response = await axios.put(`http://127.0.0.1:5000/api/v1/npcs/${npcData._id}`, npcData); // Update npc on the server
         setNpcCards(npcCards.map((row) => (row._id === npcData._id ? response.data : row))); // Update the npc in the list
         setAlert({
-          message: "Npc updated successfully", // Success message
+          message: "The scrolls of destiny have been rewritten. Your NPC is now reborn!", // Success message
           severity: "success", // Set the message severity as success
         });
+        setOpenAlert(true); // Show the alert
+        handleCloseDialog(); // Close the dialog after saving
       } catch (error) {
-        setAlert({
-          message: "Failed to update npc", // Error message
-          severity: "error", // Set the message severity as error
-        });
+        if (error.response.status) {
+          switch (error.response.status) {
+            case 400:
+              setAlert({
+                message: randomMessage, // Error message
+                severity: "error", // Set the message severity as error
+              });
+              break;
+            default:
+              setAlert({
+                message: "Failed to edit NPC", // Error message
+                severity: "error", // Set the message severity as error
+              });
+              break;
+          }
+        } else {
+          setAlert({
+            message: "Server Error: " + error, // Error message
+            severity: "error", // Set the message severity as error
+          });
+        }
       }
       setOpenAlert(true); // Show the alert
+      RandomPick();
     }
-    handleCloseDialog(); // Close the dialog after saving
+    //handleCloseDialog(); // Close the dialog after saving
   };
 
   // Handle changes in the input fields and update the npcData state
@@ -74,7 +138,9 @@ export default function NpcDialog({
 
   return (
     <Dialog open={open} onClose={handleCloseDialog}>
-      <DialogTitle alignSelf={"center"}>{action === "add" ? "Add NPC" : action === "edit" ? "Edit NPC" : "NPC Details"}</DialogTitle>
+      <DialogTitle
+        style={{ textAlign: "center", fontWeight: "bold", fontSize: "2rem" }}>
+       {action === "add" ? "Create NPC" : action === "edit" ? "Reshape NPC" : "NPC Details"}</DialogTitle>
       <DialogContent>
         {/* Render input fields or typography based on action */}
         {action === "view" ? (
@@ -85,80 +151,114 @@ export default function NpcDialog({
             <Typography variant="body1"><strong>Likes:</strong> {npcData.likes}</Typography>
             <Typography variant="body1"><strong>Inventory:</strong> {npcData.inventory}</Typography>
             <Typography variant="body1"><strong>Money:</strong> {npcData.money}</Typography>
+            <Typography variant="body1"><strong>Backstory:</strong> {npcData.backstory}</Typography>
           </>
         ) : (
-          <>
-            <TextField
-              margin="dense"
-              size="small"
-              name="named"
-              label="Name"
-              fullWidth
-              multiline
-              minRows={1}
-              maxRows={4}
-              value={npcData.named}
-              onChange={handleChange}
-            />
-            <TextField
-              margin="dense"
-              size="small"
-              name="role"
-              label="Role"
-              fullWidth
-              multiline
-              minRows={1}
-              maxRows={4}
-              value={npcData.role}
-              onChange={handleChange}
-            />
-            <TextField
-              margin="dense"
-              size="small"
-              name="personality"
-              label="Personality"
-              fullWidth
-              multiline
-              minRows={1}
-              maxRows={4}
-              value={npcData.personality}
-              onChange={handleChange}
-            />
-            <TextField
-              margin="dense"
-              name="likes"
-              label="Likes"
-              fullWidth
-              multiline
-              minRows={1}
-              maxRows={4}
-              value={npcData.likes}
-              onChange={handleChange}
-            />
-            <TextField
-              margin="dense"
-              name="inventory"
-              label="Inventory"
-              fullWidth
-              multiline
-              minRows={1}
-              maxRows={4}
-              value={npcData.inventory}
-              onChange={handleChange}
-            />
-            <TextField
-              margin="dense"
-              size="small"
-              name="money"
-              label="Money"
-              fullWidth
-              multiline
-              minRows={1}
-              maxRows={4}
-              value={npcData.money}
-              onChange={handleChange}
-            />
-          </>
+          <Grid container spacing={2} justifyContent="center">
+            <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                margin="dense"
+                size="small"
+                name="named"
+                label="Name"
+                fullWidth
+                multiline
+                minRows={1}
+                maxRows={4}
+                value={npcData.named}
+                onChange={handleChange}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                margin="dense"
+                size="small"
+                name="role"
+                label="Role"
+                fullWidth
+                multiline
+                minRows={1}
+                maxRows={4}
+                value={npcData.role}
+                onChange={handleChange}
+              />
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <TextField
+                margin="dense"
+                size="small"
+                name="picture"
+                label="Picture"
+                fullWidth
+                value={npcData.picture}
+                onChange={handleChange}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                size="small"
+                name="personality"
+                label="Personality"
+                fullWidth
+                multiline
+                minRows={1}
+                maxRows={4}
+                value={npcData.personality}
+                onChange={handleChange}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                size="small"
+                name="likes"
+                label="Likes"
+                fullWidth
+                multiline
+                minRows={1}
+                maxRows={4}
+                value={npcData.likes}
+                onChange={handleChange}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                size="small"
+                name="inventory"
+                label="Inventory"
+                fullWidth
+                multiline
+                minRows={1}
+                maxRows={4}
+                value={npcData.inventory}
+                onChange={handleChange}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                size="small"
+                name="money"
+                label="Money"
+                fullWidth
+                multiline
+                minRows={1}
+                maxRows={4}
+                value={npcData.money}
+                onChange={handleChange}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                name="backstory"
+                label="Backstory"
+                fullWidth
+                multiline
+                minRows={1}
+                maxRows={4}
+                value={npcData.backstory}
+                onChange={handleChange}
+              />
+            </Grid>
+          </Grid>
         )}
       </DialogContent>
       <DialogActions>
