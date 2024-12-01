@@ -100,7 +100,7 @@ export default function Npcs() {
       await axios.delete(`http://127.0.0.1:5000/api/v1/npcs/${id}`);
       setNpcCards(npcCards.filter((npc) => npc._id !== id)); // Remove deleted NPC from npcCards
       setAlert({
-        message: "NPC deleted successfully",
+        message: "Your NPC has been obliterated!",
         severity: "success"
       });
     } catch (error) {
