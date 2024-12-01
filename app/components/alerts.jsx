@@ -11,7 +11,7 @@ export default function Alerts({ open, setOpen, alert, setAlert }) {
   return (
     <Snackbar
       open={open} // Show or hide the alert
-      autoHideDuration={2000} // The alert will disappear after 2 seconds
+      autoHideDuration={3000} // The alert will disappear after 3 seconds
       onClose={handleClose} // Close the alert when needed
       anchorOrigin={{ vertical: "bottom", horizontal: "center" }} // Position the alert at the bottom center of the screen
     >
