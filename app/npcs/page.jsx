@@ -1,5 +1,5 @@
 "use client";
-import { Box, Button, Card, CardActions, CardMedia, Container, IconButton, Typography } from "@mui/material";
+import { Box, Button, Card, CardActions, CardMedia, Container, IconButton, Slide, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import CardContent from '@mui/material/CardContent';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
@@ -9,6 +9,7 @@ import Alerts from "../components/alerts";
 import NpcDialog from "./components/npc-dialog";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { darkTheme } from "../styles/global-theme";
 
 export default function Npcs() {
   // State for tracking the current action (add, edit, view)
@@ -29,16 +30,33 @@ export default function Npcs() {
     severity: "",
   });
 
+  // State for tracking which items are visible
+  const [visible, setVisible] = useState([]);
+
+  // Function to handle mouse enter event
+  const handleMouseEnter = () => {
+    // Play hover sound effect
+    const sound = new Audio("/SFX/hover_tick.mp3");
+    sound.play().catch(error => console.log("Sound playback error: ", error)); // Catch any playback errors
+  }
+
+  const playClick = () => {
+    // Play click sound effect
+    const sound = new Audio("/SFX/click_ufo.mp3");
+    sound.play().catch(error => console.log("Sound playback error: ", error)); // Catch any playback errors
+  }
+
   // State for storing individual NPC data
   const [npcData, setNpc] = useState({
     _id: null,
     named: "",
     role: "",
+    picture: "",
     personality: "",
     inventory: "",
-    backstory: "",
     likes: "",
     money: "",
+    backstory: "",
   });
 
   // Fetch NPC data when the component mounts
@@ -51,6 +69,13 @@ export default function Npcs() {
     try {
       const response = await axios.get("http://127.0.0.1:5000/api/v1/npcs");
       setNpcCards(response.data); // Update npcCards state with fetched data
+
+      // Make items visible with a delay
+      response.data.forEach((_, index) => {
+        setTimeout(() => {
+          setVisible((prevVisible) => [...prevVisible, index]);
+        }, index * 300);
+      });
     } catch (error) {
       setAlert({
         message: "Failed to load NPCs",
@@ -66,6 +91,7 @@ export default function Npcs() {
     setNpc(npcData); // Set the current NPC data
     setAction(action); // Set the current action
     setOpenDialog(true); // Open the dialog
+    playClick(); // Play click sound effect
   };
 
   // Function to delete an NPC by ID
@@ -99,50 +125,66 @@ export default function Npcs() {
         </Button>
       </Box>
       <Grid container spacing={4} justifyContent={"center"}>
-        {npcCards.map((iterator) => (
-          <Grid xs={12} sm={4} md={2} key={iterator._id}>
-            <Card onClick={() => handleNpc({ action: "view", npcData: iterator })} sx={{ maxWidth: 345, borderRadius: 4 }}>
-              <CardMedia
-                component="img"
-                alt="npc"
-                height="300"
-                image="https://steamuserimages-a.akamaihd.net/ugc/1786217296714225568/21960EF27D560EE2B26CE38F557235BAAE6AE383/?imw=637&imh=358&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true"
-              />
-              <CardContent>
-                <Typography gutterBottom variant="h5" component="div">
-                  {iterator.named}
-                </Typography>
-                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                  {iterator.role}
-                </Typography>
-                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                  {iterator.likes}
-                </Typography>
-              </CardContent>
-              <CardActions sx={{ justifyContent: "right" }}>
-                <IconButton
-                  color="primary"
-                  alt="Edit"
-                  onClick={(e) => {
-                    e.stopPropagation(); // Prevent opening the dialog
-                    handleNpc({ action: "edit", npcData: iterator }); // Handle editing the NPC
-                  }}
-                >
-                  <AutoFixHighIcon />
-                </IconButton>
-                <IconButton
-                  color="secondary"
-                  alt="Delete"
-                  onClick={(e) => {
-                    e.stopPropagation(); // Prevent opening the dialog
-                    deleteNpc(iterator._id); // Handle deleting the NPC
-                  }}
-                >
-                  <WhatshotIcon />
-                </IconButton>
-              </CardActions>
-            </Card>
-          </Grid>
+        {npcCards.map((iterator, index) => (
+          <Slide in={visible.includes(index)} direction="up" key={iterator._id} timeout={{ enter: 300 }}>
+            <Grid xs={12} sm={4} md={2} key={iterator._id}>
+              <Card
+                onClick={() => handleNpc({ action: "view", npcData: iterator })}
+                onMouseEnter={() => handleMouseEnter()}
+                sx={{
+                  maxWidth: 345,
+                  borderRadius: 4,
+                  "&:hover": {
+                    transform: "scale(1.05)", // Scale on hover
+                    boxShadow: `0px 0px 15px 5px ${darkTheme.palette.primary.main}`, // Increase box-shadow on hover
+                    filter: "brightness(1.3)", // Brighten the card on hover
+                  },
+                }}>
+                <CardMedia
+                  component="img"
+                  alt="NPC"
+                  height="300"
+                  image={iterator.picture}
+                />
+                <CardContent>
+                  <Typography gutterBottom variant="h5" component="div">
+                    {iterator.named}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                    {iterator.role}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                    {iterator.personality}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                    {iterator.money}
+                  </Typography>
+                </CardContent>
+                <CardActions sx={{ justifyContent: "right" }}>
+                  <IconButton
+                    color="primary"
+                    alt="Edit"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent opening the dialog
+                      handleNpc({ action: "edit", npcData: iterator }); // Handle editing the NPC
+                    }}
+                  >
+                    <AutoFixHighIcon />
+                  </IconButton>
+                  <IconButton
+                    color="secondary"
+                    alt="Delete"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent opening the dialog
+                      deleteNpc(iterator._id); // Handle deleting the NPC
+                    }}
+                  >
+                    <WhatshotIcon />
+                  </IconButton>
+                </CardActions>
+              </Card>
+            </Grid>
+          </Slide>
         ))}
       </Grid>
       <NpcDialog
@@ -155,6 +197,7 @@ export default function Npcs() {
         setNpcCards={setNpcCards}
         setAlert={setAlert}
         setOpenAlert={setOpenAlert}
+        setVisible={setVisible}
       />
       <Alerts
         open={openAlert}
