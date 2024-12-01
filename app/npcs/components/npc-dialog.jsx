@@ -79,7 +79,7 @@ export default function NpcDialog({
               break;
             default:
               setAlert({
-                message: "Failed to add NPC", // Error message
+                message: randomMessage, // Error message
                 severity: "error", // Set the message severity as error
               });
               break;
