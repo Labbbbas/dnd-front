@@ -1,268 +1,99 @@
-"use client";
 
-// Import necessary Material UI components for layout and UI elements
-import { Box, Button, Container, IconButton, Paper } from "@mui/material";
-
-// Import icons for actions like editing and deleting
+  "use client";
+import { Box, Button, Card, CardActions, CardMedia, Container, IconButton, Slide, Typography } from "@mui/material";
+import Grid from "@mui/material/Grid2";
+import CardContent from '@mui/material/CardContent';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import WhatshotIcon from '@mui/icons-material/Whatshot';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-
-// Import DataGrid component for displaying data in a table
-import { DataGrid } from "@mui/x-data-grid";
-
-// Import custom components for dialogs and alerts
-import CharacterDialog from "./components/character_dialog";
 import Alerts from "../components/alerts";
-
-// React hooks for state management
+import CharacterDialog from "./components/character-dialog";
 import { useState, useEffect } from "react";
-
-// Axios for making HTTP requests to the backend
 import axios from "axios";
+import { darkTheme } from "../styles/global-theme";
 
 export default function Characters() {
-  // Define columns for the DataGrid table
-  // Each column has an appropriate width and flex to make it look aesthetic
-  const columns = [
-    {
-      field: "characterName", 
-      headerName: "Character",
-      flex: 3,
-      sortable: false, // Disable sorting
-      disableColumnMenu: true, // Disable column menu
-      headerAlign: "center", 
-      align: "center",
-      renderHeader: () => (
-        <Box sx={{ fontWeight: 'bold', textAlign: 'center' }}>
-          Character
-        </Box>
-      ),
-      renderCell: (params) => (
-        // So it doesn't look so crowded
-        <Box sx={{ paddingTop: '8px', paddingBottom: '8px', textAlign: 'center' }}>
-          {params.value}
-        </Box>
-      ),
-    },
-    {
-      field: "race", 
-      headerName: "Race", 
-      flex: 2, 
-      sortable: false, // Disable sorting
-      disableColumnMenu: true, // Disable column menu
-      headerAlign: "center", 
-      align: "left", 
-      renderHeader: () => (
-        <Box sx={{ fontWeight: 'bold', textAlign: 'center' }}>
-          Race
-        </Box>
-      ),
-      renderCell: (params) => (
-        <Box sx={{ 
-          whiteSpace: 'normal', 
-          wordWrap: 'break-word', 
-          textAlign: 'justify', 
-          paddingTop: '8px', 
-          paddingBottom: '8px' 
-        }}>
-          {params.value}
-        </Box>
-      ),
-    },
-    {
-      field: "className", 
-      headerName: "Class", 
-      width: 70, 
-      sortable: false, // Disable sorting
-      disableColumnMenu: true, // Disable column menu
-      headerAlign: "center", 
-      align: "center",
-      renderHeader: () => (
-        <Box sx={{ fontWeight: 'bold', textAlign: 'center' }}>
-          Class
-        </Box>
-      ),
-      renderCell: (params) => (
-        <Box sx={{ paddingTop: '8px', paddingBottom: '8px', textAlign: 'center' }}>
-          {params.value}
-        </Box>
-      ),
-    },
-    {
-      field: "alignment", 
-      headerName: "Alignment", 
-      width: 160, 
-      sortable: false, // Disable sorting
-      disableColumnMenu: true, // Disable column menu
-      headerAlign: "center", 
-      align: "center", 
-      renderHeader: () => (
-        <Box sx={{ fontWeight: 'bold', textAlign: 'center' }}>
-          Alignment
-        </Box>
-      ),
-      renderCell: (params) => (
-        <Box sx={{ paddingTop: '8px', paddingBottom: '8px', textAlign: 'center' }}>
-          {params.value}
-        </Box>
-      ),
-    },
-    {
-      field: "level", 
-      headerName: "Level", 
-      width: 210, 
-      sortable: false, // Disable sorting
-      disableColumnMenu: true, // Disable column menu
-      headerAlign: "center", 
-      align: "center", 
-      renderHeader: () => (
-        <Box sx={{ fontWeight: 'bold', textAlign: 'center' }}>
-          Level
-        </Box>
-      ),
-      renderCell: (params) => (
-        <Box sx={{ paddingTop: '8px', paddingBottom: '8px', textAlign: 'center' }}>
-          {params.value}
-        </Box>
-      ),
-    },
-    {
-      field: "background", 
-      headerName: "Background", 
-      width: 180, 
-      sortable: false, // Disable sorting
-      disableColumnMenu: true, // Disable column menu
-      headerAlign: "center", 
-      align: "justify", 
-      renderHeader: () => (
-        <Box sx={{ fontWeight: 'bold', textAlign: 'center' }}>
-          Background
-        </Box>
-      ),
-      renderCell: (params) => (
-        <Box sx={{ 
-          whiteSpace: 'normal', 
-          wordWrap: 'break-word', 
-          textAlign: 'justify', 
-          paddingTop: '8px', 
-          paddingBottom: '8px' 
-        }}>
-          {params.value}
-        </Box>
-      ),
-    },
-    {
-      field: "playerName", 
-      headerName: "Player Name", 
-      width: 150, 
-      sortable: false, // Disable sorting
-      disableColumnMenu: true, // Disable column menu
-      headerAlign: "center", 
-      align: "justify", 
-      renderHeader: () => (
-        <Box sx={{ fontWeight: 'bold', textAlign: 'center' }}>
-          Player Name
-        </Box>
-      ),
-      renderCell: (params) => (
-        <Box sx={{ 
-          whiteSpace: 'normal', 
-          wordWrap: 'break-word', 
-          textAlign: 'justify', 
-          paddingTop: '8px', 
-          paddingBottom: '8px' 
-        }}>
-          {params.value}
-        </Box>
-      ),
-    },
-    {
-      field: "actions", 
-      headerName: "", 
-      width: 120,
-      sortable: false, // Disable sorting
-      disableColumnMenu: true, // Disable column menu
-      renderCell: (params) => (
-        <Box sx={{ paddingTop: '8px', paddingBottom: '8px', textAlign: 'center' }}>
-          {/* Edit button */}
-          <IconButton color="primary" onClick={() => handleCharacter({ action: "edit", characterData: params.row })}>
-            <AutoFixHighIcon />
-          </IconButton>
-          {/* Delete button */}
-          <IconButton color="secondary" onClick={() => deleteCharacter(params.row._id)}>
-            <WhatshotIcon />
-          </IconButton>
-        </Box>
-      ),
-    },
-  ];
+  // State for tracking the current action (add, edit, view)
+  const [action, setAction] = useState("");
 
-  // State variables to manage data and UI states
-  const [action, setAction] = useState(""); // Action (edit, add)
-  const [openDialog, setOpenDialog] = useState(false); // Open dialog state
-  const [rows, setRows] = useState(); // Rows for DataGrid
-  const [openAlert, setOpenAlert] = useState(false); // Open alert state
+  // State for managing the visibility of the dialog
+  const [openDialog, setOpenDialog] = useState(false);
+
+  // State for storing Character cards data
+  const [characterCards, setCharacterCards] = useState([]);
+
+  // State for managing the visibility of alerts
+  const [openAlert, setOpenAlert] = useState(false);
+
+  // State for storing alert messages and severity
   const [alert, setAlert] = useState({
     message: "",
     severity: "",
-  }); // Alert message and severity (error, success)
+  });
+
+  // State for tracking which items are visible
+  const [visible, setVisible] = useState([]);
+
+  // Function to handle mouse enter event
+  const handleMouseEnter = () => {
+    // Play hover sound effect
+    const sound = new Audio("/SFX/hover_tick.mp3");
+    sound.play().catch(error => console.log("Sound playback error: ", error)); // Catch any playback errors
+  }
+
+  const playClick = () => {
+    // Play click sound effect
+    const sound = new Audio("/SFX/click_ufo.mp3");
+    sound.play().catch(error => console.log("Sound playback error: ", error)); // Catch any playback errors
+  }
+
+  // State for storing individual Character data
   const [characterData, setCharacter] = useState({
-    id: null,
+    _id: null,
     characterName: "",
     race: "",
     className: "",
     alignment: "",
     level: "",
     background: "",
-    playerName: ""
-  }); // Character data to be added or edited
+    playerName: "",
+    picture: "",
+  });
 
-  // Fetch the characters from the server when the component is mounted
+  // Fetch Character data when the component mounts
   useEffect(() => {
     fetchCharacters();
-  }, []); // Empty dependency array means it runs only once when the component mounts
+  }, []);
 
-  // Fetch the list of characters from the backend
+  // Function to fetch Character data from the server
   const fetchCharacters = async () => {
     try {
       const response = await axios.get("http://127.0.0.1:5000/api/v1/characters");
-      setRows(response.data); // Set the fetched characters to the state
+      setCharacterCards(response.data); // Update characterCards state with fetched data
+
+      // Make items visible with a delay
+      response.data.forEach((_, index) => {
+        setTimeout(() => {
+          setVisible((prevVisible) => [...prevVisible, index]);
+        }, index * 300);
+      });
     } catch (error) {
-      //console.error("Error fetching characters", error);
-      // Display an alert if there is an error
       setAlert({
-        message: "Failed to load characters",
-        severity: "error",
+        message: "Failed to load Characters",
+        severity: "error"
       });
-      setOpenAlert(true); // Open the alert
+      setOpenAlert(true); // Show alert on error
     }
   };
 
-  // Handle the character actions (add or edit)
+  // Function to handle actions on Characters (add, edit, view)
   const handleCharacter = ({ action, characterData }) => {
-    console.info("Handle character action:", action);
-    setAction(action); // Set the current action (add/edit)
+    //console.log("characterData", characterData);
+    setCharacter(characterData); // Set the current Character data
+    setAction(action); // Set the current action
     setOpenDialog(true); // Open the dialog
-    // If adding a character, clear the form fields
-    if (action === "add") {
-      setCharacter({
-        id: null,
-        characterName: "",
-        race: "",
-        className: "",
-        alignment: "",
-        level: "",
-        background: "",
-        playerName: ""
-      });
-    } else if (action === "edit") {
-      setCharacter(characterData); // If editing, load the character data into the form
-    } else {
-      console.warn("Unknown action:", action);
-    }
+    playClick(); // Play click sound effect
   };
-
   // Random messages for fun when deleting a character
   const randDeleteMessage = () => {
     const messages = [
@@ -280,88 +111,124 @@ export default function Characters() {
     return messages[Math.floor(Math.random() * messages.length)];
   };
 
-  // Delete a character from the database
+  // Function to delete an Character by ID
   const deleteCharacter = async (id) => {
     try {
       await axios.delete(`http://127.0.0.1:5000/api/v1/characters/${id}`);
-      setRows(rows.filter((row) => row._id !== id)); // Remove the deleted character from the table
+      setCharacterCards(characterCards.filter((character) => character._id !== id)); // Remove deleted Character from characterCards
       setAlert({
-        message: randDeleteMessage(), // Random message for fun
-        severity: "success",
+        message: randDeleteMessage(),
+        severity: "success"
       });
     } catch (error) {
-      //console.error("Error deleting character: ", error);
       setAlert({
-        message: "Failed to delete character",
-        severity: "error",
+        message: "Failed to delete Character",
+        severity: "error"
       });
     }
-    setOpenAlert(true); // Open the alert with success or error message
+    setOpenAlert(true); // Show alert after deletion
   };
 
   return (
-    <Box sx={{ minHeight: '100vh', paddingBottom: '50px' }}> {/* Add a blank space in the bottom */}
-      <Container maxWidth="xl" disableGutters>
-        {/* Button to add a new character */}
-        <Box sx={{ display: "flex", justifyContent: "center", mb: 2, mt: 2 }}>
-          <Button
-            startIcon={<AddCircleIcon />}
-            variant="contained"
-            sx={{ borderRadius: 3 }}
-            onClick={() => handleCharacter({ action: "add" })}
-          >
-            Create Character
-          </Button>
-        </Box>
-
-        {/* DataGrid table for displaying characters */}
-        <Paper sx={{ 
-          overflow: 'auto', // Enables scrolling if content overflows
-          maxHeight: 'calc(100vh - 100px)', // Sets a maximum height based on the viewport height minus 100px
-          width: '80%', // Sets the width to 80% of the parent container
-          maxWidth: '1200px', // Sets a maximum fixed width for the Paper component
-          margin: '0 auto', // Centers the Paper horizontally
-        }}>
-          <DataGrid
-            columns={columns} // The columns that you already have defined
-            rows={rows} // The data that you already have
-            getRowId={(row) => row._id} // Unique identifier for each row, based on _id
-            autoHeight // Automatically adjusts the row height based on content
-            initialState={{
-              pagination: {
-                paginationModel: { page: 0, pageSize: 5 }, // Default page and page size
-              },
-            }}
-            pageSizeOptions={[5, 10]} // Options for the pagination to choose page sizes
-            components={{
-              ColumnHeader: () => null, // Customizes the column header, here it hides it
-            }}
-            getRowHeight={() => 'auto'} // Allows the row height to be auto-adjusted based on content
-          />
-        </Paper>
-
-
-        {/* Dialog for adding or editing a character */}
-        <CharacterDialog
-          open={openDialog}
-          setOpen={setOpenDialog}
-          characterData={characterData}
-          setCharacter={setCharacter}
-          action={action}
-          rows={rows}
-          setRows={setRows}
-          setAlert={setAlert}
-          setOpenAlert={setOpenAlert}
-        />
-
-        {/* Alert component to show error or success messages */}
-        <Alerts
-          open={openAlert}
-          setOpen={setOpenAlert}
-          alert={alert}
-          setAlert={setAlert}
-        />
-      </Container>
-    </Box>
+    <Container maxWidth="xl" disableGutters>
+      <Box sx={{ display: "flex", justifyContent: "center", mb: 2, mt: 2 }}>
+        <Button
+          startIcon={<AddCircleIcon />}
+          variant="contained"
+          sx={{ borderRadius: 3 }}
+          onClick={() => handleCharacter({ action: "add", characterData: {} })} // Handle adding a new Character
+        >
+          Add Character
+        </Button>
+      </Box>
+      <Grid container spacing={4} justifyContent={"center"}>
+        {characterCards.map((iterator, index) => (
+          <Slide in={visible.includes(index)} direction="up" key={iterator._id} timeout={{ enter: 300 }}>
+            <Grid xs={12} sm={4} md={2} key={iterator._id}>
+              <Card
+                onClick={() => handleCharacter({ action: "view", characterData: iterator })}
+                onMouseEnter={() => handleMouseEnter()}
+                sx={{
+                  maxWidth: 345,
+                  borderRadius: 4,
+                  "&:hover": {
+                    transform: "scale(1.05)", // Scale on hover
+                    boxShadow: `0px 0px 15px 5px ${darkTheme.palette.primary.main}`, // Increase box-shadow on hover
+                    filter: "brightness(1.3)", // Brighten the card on hover
+                  },
+                }}>
+                <CardMedia
+                  component="img"
+                  alt="Character"
+                  height="300"
+                  image={iterator.picture}
+                />
+                <CardContent>
+                  <Typography gutterBottom variant="h5" component="div"
+                    sx={{
+                      whiteSpace: "normal",    // Allows text to wrap onto the next line
+                      wordWrap: "break-word",  // Ensures long words or strings break properly
+                      overflow: "hidden",      // Prevents text from spilling outside the container
+                      textOverflow: "ellipsis" // Optionally, adds "..." for long overflows}} >
+                    }}>
+                    {iterator.characterName}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                    {iterator.race}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                    {iterator.className}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                    {iterator.level}
+                  </Typography>
+                </CardContent>
+                <CardActions sx={{ justifyContent: "right" }}>
+                  <IconButton
+                    color="primary"
+                    alt="Edit"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent opening the dialog
+                      handleCharacter({ action: "edit", characterData: iterator }); // Handle editing the Character
+                    }}
+                  >
+                    <AutoFixHighIcon />
+                  </IconButton>
+                  <IconButton
+                    color="secondary"
+                    alt="Delete"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent opening the dialog
+                      deleteCharacter(iterator._id); // Handle deleting the Character
+                    }}
+                  >
+                    <WhatshotIcon />
+                  </IconButton>
+                </CardActions>
+              </Card>
+            </Grid>
+          </Slide>
+        ))}
+      </Grid>
+      <CharacterDialog
+        open={openDialog}
+        setOpen={setOpenDialog}
+        characterData={characterData}
+        setCharacter={setCharacter}
+        action={action}
+        characterCards={characterCards}
+        setCharacterCards={setCharacterCards}
+        setAlert={setAlert}
+        setOpenAlert={setOpenAlert}
+        setVisible={setVisible}
+      />
+      <Alerts
+        open={openAlert}
+        setOpen={setOpenAlert}
+        alert={alert}
+        setAlert={setAlert}
+      />
+    </Container>
   );
 }
+
