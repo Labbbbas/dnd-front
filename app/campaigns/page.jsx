@@ -1,415 +1,375 @@
-'use client'
+"use client";
 
-import { useState } from 'react';
-import { TextField, MenuItem, FormControl, InputLabel, Select, Button, Grid, Typography, Box } from '@mui/material';
-import Head from 'next/head';
+// Import necessary Material UI components for layout and UI elements
+import { Box, Button, Container, IconButton, Paper } from "@mui/material";
 
-export default function CampaignPage() {
-    const [formData, setFormData] = useState({
-        name: '',
-        description: '',
-        dungeonMaster: '',
-        status: 'ongoing',
-        playerCharacters: '',
-        startDate: '',
-        endDate: '',
-        worldSetting: '',
-        questLog: ''
-    });
+// Import icons for actions like editing and deleting
+import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
+import WhatshotIcon from '@mui/icons-material/Whatshot';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({
-        ...formData,
-        [name]: value
+// Import DataGrid component for displaying data in a table
+import { DataGrid } from "@mui/x-data-grid";
+
+// Import custom components for dialogs and alerts
+import CampaignDialog from "./components/campaign-dialog";
+import Alerts from "../components/alerts";
+
+// React hooks for state management
+import { useState, useEffect } from "react";
+
+// Axios for making HTTP requests to the backend
+import axios from "axios";
+
+export default function Campaigns() {
+  // Define columns for the DataGrid table
+  // Each column has an appropriate width and flex to make it look aesthetic
+    const columns = [
+        {
+        field: "name", 
+        headerName: "Campaign",
+        width: 140, 
+        sortable: false, // Disable sorting
+        disableColumnMenu: true, // Disable column menu
+        headerAlign: "center", 
+        align: "center",
+        renderHeader: () => (
+            <Box sx={{ fontWeight: 'bold', textAlign: 'center' }}>
+            Campaign
+            </Box>
+        ),
+        renderCell: (params) => (
+            // So it doesn't look so crowded
+            <Box sx={{ paddingTop: '8px', paddingBottom: '8px', textAlign: 'center' }}>
+            {params.value}
+            </Box>
+        ),
+        },
+        {
+        field: "dm", 
+        headerName: "Dungeon Master", 
+        width: 140, 
+        sortable: false, // Disable sorting
+        disableColumnMenu: true, // Disable column menu
+        headerAlign: "center", 
+        align: "center",
+        renderHeader: () => (
+            <Box sx={{ fontWeight: 'bold', textAlign: 'center' }}>
+            Dungeon Master
+            </Box>
+        ),
+        renderCell: (params) => (
+            <Box sx={{ 
+                whiteSpace: 'normal', 
+                wordWrap: 'break-word', 
+                textAlign: 'justify', 
+                paddingTop: '8px', 
+                paddingBottom: '8px' 
+            }}>
+            {params.value}
+            </Box>
+        ),
+        },
+        {
+            field: "description", 
+            headerName: "Description", 
+            width: 180, 
+            sortable: false, // Disable sorting
+            disableColumnMenu: true, // Disable column menu
+            headerAlign: "center", 
+            align: "left", 
+            renderHeader: () => (
+                <Box sx={{ fontWeight: 'bold', textAlign: 'center' }}>
+                Description
+                </Box>
+            ),
+            renderCell: (params) => (
+                <Box sx={{ 
+                    whiteSpace: 'normal', 
+                    wordWrap: 'break-word', 
+                    textAlign: 'justify', 
+                    paddingTop: '8px', 
+                    paddingBottom: '8px' 
+                }}>
+                {params.value}
+                </Box>
+            ),
+        },
+        {
+        field: "sts", 
+        headerName: "Status", 
+        width: 100, 
+        sortable: false, // Disable sorting
+        disableColumnMenu: true, // Disable column menu
+        headerAlign: "center", 
+        align: "center", 
+        renderHeader: () => (
+            <Box sx={{ fontWeight: 'bold', textAlign: 'center' }}>
+            Status
+            </Box>
+        ),
+        renderCell: (params) => (
+            <Box sx={{ paddingTop: '8px', paddingBottom: '8px', textAlign: 'center' }}>
+            {params.value}
+            </Box>
+        ),
+        },
+        {
+        field: "startDate", 
+        headerName: "Start Date", 
+        width: 120, 
+        sortable: false, // Disable sorting for this column
+        disableColumnMenu: true, // Disable the column menu
+        headerAlign: "center", 
+        align: "center", 
+        renderHeader: () => (
+            <Box sx={{ fontWeight: 'bold', textAlign: 'center' }}>
+                Start Date
+            </Box>
+        ),
+        renderCell: (params) => (
+            <Box sx={{ paddingTop: '8px', paddingBottom: '8px', textAlign: 'center' }}>
+                {/* Format the date if it exists */}
+                {params.value ? new Date(params.value).toLocaleDateString() : 'No Date'} 
+            </Box>
+            ),
+        },
+        {
+        field: "endDate", 
+        headerName: "End Date", 
+        width: 120, 
+        sortable: false, // Disable sorting for this column
+        disableColumnMenu: true, // Disable the column menu
+        headerAlign: "center", 
+        align: "center", 
+        renderHeader: () => (
+            <Box sx={{ fontWeight: 'bold', textAlign: 'center' }}>
+                End Date
+            </Box>
+        ),
+        renderCell: (params) => (
+            <Box sx={{ paddingTop: '8px', paddingBottom: '8px', textAlign: 'center' }}>
+                {/* Format the date if it exists */}
+                {params.value ? new Date(params.value).toLocaleDateString() : 'No Date'} 
+            </Box>
+            ),
+        },
+        {
+        field: "pc", 
+        headerName: "Player Characters", 
+        width: 200, 
+        sortable: false, // Disable sorting
+        disableColumnMenu: true, // Disable column menu
+        headerAlign: "center", 
+        align: "center", 
+        renderHeader: () => (
+            <Box sx={{ fontWeight: 'bold', textAlign: 'center' }}>
+            Player Characters
+            </Box>
+        ),
+        renderCell: (params) => (
+            <Box sx={{ paddingTop: '8px', paddingBottom: '8px', textAlign: 'center' }}>
+            {params.value}
+            </Box>
+        ),
+        },
+        {
+        field: "ql", 
+        headerName: "Quest Log", 
+        width: 200, 
+        sortable: false, // Disable sorting
+        disableColumnMenu: true, // Disable column menu
+        headerAlign: "center", 
+        align: "justify", 
+        renderHeader: () => (
+            <Box sx={{ fontWeight: 'bold', textAlign: 'center' }}>
+            Quest Log
+            </Box>
+        ),
+        renderCell: (params) => (
+            <Box sx={{ 
+            whiteSpace: 'normal', 
+            wordWrap: 'break-word', 
+            textAlign: 'justify', 
+            paddingTop: '8px', 
+            paddingBottom: '8px' 
+            }}>
+            {params.value}
+            </Box>
+        ),
+        },
+        {
+        field: "actions", 
+        headerName: "", 
+        width: 120,
+        sortable: false, // Disable sorting
+        disableColumnMenu: true, // Disable column menu
+        renderCell: (params) => (
+            <Box sx={{ paddingTop: '8px', paddingBottom: '8px', textAlign: 'center' }}>
+            {/* Edit button */}
+            <IconButton color="primary" onClick={() => handleCampaign({ action: "edit", campaignData: params.row })}>
+                <AutoFixHighIcon />
+            </IconButton>
+            {/* Delete button */}
+            <IconButton color="secondary" onClick={() => deleteCampaign(params.row._id)}>
+                <WhatshotIcon />
+            </IconButton>
+            </Box>
+        ),
+        },
+    ];
+    
+    
+
+    // State variables to manage data and UI states
+    const [action, setAction] = useState(""); // Action (edit, add)
+    const [openDialog, setOpenDialog] = useState(false); // Open dialog state
+    const [rows, setRows] = useState(); // Rows for DataGrid
+    const [openAlert, setOpenAlert] = useState(false); // Open alert state
+    const [alert, setAlert] = useState({
+        message: "",
+        severity: "",
+    }); // Alert message and severity (error, success)
+    const [campaignData, setCampaign] = useState({
+        id: null,
+        name: "",
+        dm: "",
+        description: "",
+        sts: "",
+        startDate: "",
+        endDate: "",
+        pc: "",
+        ql: "",
+    }); // Campaign data to be added or edited
+
+    // Fetch the classes from the server when the component is mounted
+    useEffect(() => {
+        fetchCampaigns();
+    }, []); // Empty dependency array means it runs only once when the component mounts
+
+    // Fetch the list of classes from the backend
+    const fetchCampaigns = async () => {
+        try {
+        const response = await axios.get("http://127.0.0.1:3000/campaigns"); //http://127.0.0.1:5000/api/v1/campaigns
+        setRows(response.data); // Set the fetched classes to the state
+        } catch (error) {
+        console.error("Error fetching campaigns", error);
+        // Display an alert if there is an error
+        setAlert({
+            message: "Failed to load campaigns",
+            severity: "error",
         });
+        setOpenAlert(true); // Open the alert
+        }
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        console.log('Campaign data submitted:', formData);
+    // Handle the class actions (add or edit)
+    const handleCampaign = ({ action, campaignData }) => {
+        console.info("Handle campaign action:", action);
+        setAction(action); // Set the current action (add/edit)
+        setOpenDialog(true); // Open the dialog
+        // If adding a class, clear the form fields
+        if (action === "add") {
+        setCampaign({
+            id: null,
+            name: "",
+            dm: "",
+            description: "",
+            sts: "",
+            startDate: "",
+            endDate: "",
+            pc: "",
+            ql: "",
+        });
+        } else if (action === "edit") {
+        setCampaign(campaignData); // If editing, load the class data into the form
+        } else {
+        console.warn("Unknown action:", action);
+        }
+    };
+
+    // Delete a class from the database
+    const deleteCampaign = async (id) => {
+        try {
+        await axios.delete(`http://127.0.0.1:5000/api/v1/campaigns/${id}`);
+        setRows(rows.filter((row) => row._id !== id)); // Remove the deleted class from the table
+        setAlert({
+            message: "Campaign deleted successfully",
+            severity: "success",
+        });
+        } catch (error) {
+        console.error("Error deleting campaign: ", error);
+        setAlert({
+            message: "Failed to delete campaign",
+            severity: "error",
+        });
+        }
+        setOpenAlert(true); // Open the alert with success or error message
     };
 
     return (
-        <>
-            <Head>
-                <link rel="preconnect" href="https://fonts.googleapis.com" />
-                <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-                <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet"/>
-            </Head>
-        
-            <Box
-                sx={{
-                    backgroundImage: 'url("https://preview.redd.it/2ggctvfdseta1.jpg?auto=webp&s=b23bf7239b1045cc9d1fd887a845364d594a7420")', // Background image
-                    backgroundSize: 'cover', 
-                    backgroundPosition: 'center', 
-                    display: 'flex',
-                    alignItems: 'center', 
-                    justifyContent: 'center', 
-                }}
+        <Box sx={{ minHeight: '100vh', paddingBottom: '50px' }}> {/* Add a blank space in the bottom */}
+        <Container maxWidth="xl" disableGutters>
+            {/* Button to add a new class */}
+            <Box sx={{ display: "flex", justifyContent: "center", mb: 2, mt: 2 }}>
+            <Button
+                startIcon={<AddCircleIcon />}
+                variant="contained"
+                sx={{ borderRadius: 3 }}
+                onClick={() => handleCampaign({ action: "add" })}
             >
-                <Box
-                    sx={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.7)', 
-                    padding: 4,
-                    margin: '30px',
-                    borderRadius: '8px',
-                    width: '100%',
-                    maxWidth: 600, 
-                    boxShadow: 3, // shadow
-                    height: 'auto',
-                    color: 'black',
-                    }}
-                >
-                    <Typography
-                    variant="h4"
-                    sx={{
-                        textAlign: 'center',
-                        fontWeight: 'bold',
-                        marginBottom: 4,
-                        fontFamily: '"Playfair Display", serif',
-                        fontWeight: 600,
-                        fontSize: '36px',
-                    }}
-                    >
-                    CREAR CAMPAÑA
-                    </Typography>
-                    
-                    <form onSubmit={handleSubmit}>
-                    <Grid container spacing={3}>
-                        <Grid item xs={12}>
-                        <TextField
-                            fullWidth
-                            label="Nombre"
-                            name="name"
-                            value={formData.name}
-                            onChange={handleChange}
-                            required
-                            sx={{
-                                '& .MuiOutlinedInput-root': {
-                                    '& fieldset': {
-                                        borderColor: 'black', 
-                                        borderWidth: 2,
-                                    },
-                                    '&:hover fieldset': {
-                                        borderColor: 'black', 
-                                        borderWidth: 2,
-                                    },
-                                    '&.Mui-focused fieldset': {
-                                        borderColor: 'black',
-                                        borderWidth: 2,
-                                    },
-                                },
-                                '& .MuiInputBase-input': {
-                                    color: 'black',
-                                },
-                                '& .MuiInputLabel-root': {
-                                    color: 'black', 
-                                    fontWeight: 'bold',
-                                },
-                                '& .Mui-focused .MuiInputBase-input': {
-                                    color: 'black',
-                                }
-                            }}
-                        />
-                        </Grid>
-                        <Grid item xs={12}>
-                        <TextField
-                            fullWidth
-                            label="Descripción"
-                            name="description"
-                            value={formData.description}
-                            onChange={handleChange}
-                            sx={{
-                                '& .MuiOutlinedInput-root': {
-                                    '& fieldset': {
-                                        borderColor: 'black', 
-                                        borderWidth: 2,
-                                    },
-                                    '&:hover fieldset': {
-                                        borderColor: 'black', 
-                                        borderWidth: 2,
-                                    },
-                                    '&.Mui-focused fieldset': {
-                                        borderColor: 'black', 
-                                        borderWidth: 2,
-                                    },
-                                    },
-                                    '& .MuiInputBase-input': {
-                                    color: 'black', 
-                                    },
-                                    '& .MuiInputLabel-root': {
-                                    color: 'black', 
-                                    fontWeight: 'bold',
-                                    }
-                            }}
-                        />
-                        </Grid>
-                        <Grid item xs={12}>
-                        <TextField
-                            fullWidth
-                            label="Dungeon Master"
-                            name="dungeonMaster"
-                            value={formData.dungeonMaster}
-                            onChange={handleChange}
-                            sx={{
-                                '& .MuiOutlinedInput-root': {
-                                    '& fieldset': {
-                                        borderColor: 'black', 
-                                        borderWidth: 2,
-                                    },
-                                    '&:hover fieldset': {
-                                        borderColor: 'black', 
-                                        borderWidth: 2,
-                                    },
-                                    '&.Mui-focused fieldset': {
-                                        borderColor: 'black', 
-                                        borderWidth: 2,
-                                    },
-                                    },
-                                    '& .MuiInputBase-input': {
-                                    color: 'black', 
-                                    },
-                                    '& .MuiInputLabel-root': {
-                                    color: 'black', 
-                                    fontWeight: 'bold',
-                                    }
-                            }}
-                        />
-                        </Grid>
-                        <Grid item xs={12}>
-                        <FormControl
-                            fullWidth
-                            sx={{
-                                '& .MuiOutlinedInput-root': {
-                                    '& fieldset': {
-                                        borderColor: 'black', 
-                                        borderWidth: 2,
-                                    },
-                                    '&:hover fieldset': {
-                                        borderColor: 'black', 
-                                        borderWidth: 2,
-                                    },
-                                    '&.Mui-focused fieldset': {
-                                        borderColor: 'black', 
-                                        borderWidth: 2,
-                                    },
-                                    },
-                                    '& .MuiInputBase-input': {
-                                    color: 'black', 
-                                    },
-                                    '& .MuiInputLabel-root': {
-                                    color: 'black', 
-                                    fontWeight: 'bold',
-                                    }
-                            }}
-                        >
-                            <InputLabel>Status</InputLabel>
-                            <Select
-                            name="status"
-                            value={formData.status}
-                            onChange={handleChange}
-                            >
-                                <MenuItem value="ongoing">En proceso</MenuItem>
-                                <MenuItem value="completed">Completado</MenuItem>
-                                <MenuItem value="paused">En pausa</MenuItem>
-                            </Select>
-                        </FormControl>
-                        </Grid>
-                        <Grid item xs={12}>
-                        <TextField
-                            fullWidth
-                            label="Player Characters"
-                            name="playerCharacters"
-                            value={formData.playerCharacters}
-                            onChange={handleChange}
-                            sx={{
-                                '& .MuiOutlinedInput-root': {
-                                    '& fieldset': {
-                                        borderColor: 'black', 
-                                        borderWidth: 2,
-                                    },
-                                    '&:hover fieldset': {
-                                        borderColor: 'black', 
-                                        borderWidth: 2,
-                                    },
-                                    '&.Mui-focused fieldset': {
-                                        borderColor: 'black', 
-                                        borderWidth: 2,
-                                    },
-                                    },
-                                    '& .MuiInputBase-input': {
-                                    color: 'black', 
-                                    },
-                                    '& .MuiInputLabel-root': {
-                                    color: 'black', 
-                                    fontWeight: 'bold',
-                                    }
-                            }}
-                        />
-                        </Grid>
-                        <Grid container item xs={12} spacing={2}>
-                        <Grid item xs={6}>
-                            <TextField
-                            fullWidth
-                            label="Fecha de Inicio"
-                            name="startDate"
-                            value={formData.startDate}
-                            onChange={handleChange}
-                            type="date"
-                            InputLabelProps={{
-                                shrink: true,
-                            }}
-                            sx={{
-                                '& .MuiOutlinedInput-root': {
-                                    '& fieldset': {
-                                        borderColor: 'black', 
-                                        borderWidth: 2,
-                                    },
-                                    '&:hover fieldset': {
-                                        borderColor: 'black', 
-                                        borderWidth: 2,
-                                    },
-                                    '&.Mui-focused fieldset': {
-                                        borderColor: 'black', 
-                                        borderWidth: 2,
-                                    },
-                                    },
-                                    '& .MuiInputBase-input': {
-                                    color: 'black', 
-                                    },
-                                    '& .MuiInputLabel-root': {
-                                    color: 'black', 
-                                    fontWeight: 'bold',
-                                    }
-                            }}
-                            />
-                        </Grid>
-                        <Grid item xs={6}>
-                            <TextField
-                            fullWidth
-                            label="Fecha Fin"
-                            name="endDate"
-                            value={formData.endDate}
-                            onChange={handleChange}
-                            type="date"
-                            InputLabelProps={{
-                                shrink: true,
-                            }}
-                            sx={{
-                                '& .MuiOutlinedInput-root': {
-                                    '& fieldset': {
-                                        borderColor: 'black',
-                                        borderWidth: 2,
-                                    },
-                                    '&:hover fieldset': {
-                                        borderColor: 'black', 
-                                        borderWidth: 2,
-                                    },
-                                    '&.Mui-focused fieldset': {
-                                        borderColor: 'black', 
-                                        borderWidth: 2,
-                                    },
-                                    },
-                                    '& .MuiInputBase-input': {
-                                    color: 'black', 
-                                    },
-                                    '& .MuiInputLabel-root': {
-                                    color: 'black', 
-                                    fontWeight: 'bold',
-                                    }
-                            }}
-                            />
-                        </Grid>
-                        </Grid>
-                        <Grid item xs={12}>
-                        <TextField
-                            fullWidth
-                            label="World/Setting"
-                            name="worldSetting"
-                            value={formData.worldSetting}
-                            onChange={handleChange}
-                            sx={{
-                                '& .MuiOutlinedInput-root': {
-                                    '& fieldset': {
-                                        borderColor: 'black', 
-                                        borderWidth: 2,
-                                    },
-                                    '&:hover fieldset': {
-                                        borderColor: 'black', 
-                                        borderWidth: 2,
-                                    },
-                                    '&.Mui-focused fieldset': {
-                                        borderColor: 'black', 
-                                        borderWidth: 2,
-                                    },
-                                    },
-                                    '& .MuiInputBase-input': {
-                                    color: 'black', 
-                                    },
-                                    '& .MuiInputLabel-root': {
-                                    color: 'black', 
-                                    fontWeight: 'bold',
-                                    }
-                            }}
-                        />
-                        </Grid>
-                        <Grid item xs={12}>
-                        <TextField
-                            fullWidth
-                            label="Quest Log"
-                            name="questLog"
-                            value={formData.questLog}
-                            onChange={handleChange}
-                            multiline
-                            rows={4}
-                            sx={{
-                                '& .MuiOutlinedInput-root': {
-                                    '& fieldset': {
-                                        borderColor: 'black', 
-                                        borderWidth: 2,
-                                    },
-                                    '&:hover fieldset': {
-                                        borderColor: 'black', 
-                                        borderWidth: 2,
-                                    },
-                                    '&.Mui-focused fieldset': {
-                                        borderColor: 'black', 
-                                        borderWidth: 2,
-                                    },
-                                    },
-                                    '& .MuiInputBase-input': {
-                                    color: 'black', 
-                                    },
-                                    '& .MuiInputLabel-root': {
-                                    color: 'black', 
-                                    fontWeight: 'bold',
-                                    }
-                            }}
-                        />
-                        </Grid>
-                        <Grid item xs={12}>
-                        <Button
-                            fullWidth
-                            variant="contained"
-                            color="primary"
-                            type="submit"
-                            sx={{
-                                backgroundColor: 'black',
-                                color: 'white',
-                                fontWeight: 'bold',
-                                '&:hover':{
-                                    backgroundColor: '#333'
-                                }
-                            }}
-                        >
-                            Crear Campaña
-                        </Button>
-                        </Grid>
-                    </Grid>
-                    </form>
-                </Box>
+                Create Campaign
+            </Button>
             </Box>
-        </>
+
+            {/* DataGrid table for displaying campaigns */}
+            <Paper sx={{ 
+            overflow: 'auto', // Enables scrolling if content overflows
+            maxHeight: 'calc(100vh - 100px)', // Sets a maximum height based on the viewport height minus 100px
+            width: '80%', // Sets the width to 80% of the parent container
+            maxWidth: '1200px', // Sets a maximum fixed width for the Paper component
+            margin: '0 auto', // Centers the Paper horizontally
+            }}>
+            <DataGrid
+                columns={columns} // The columns that you already have defined
+                rows={rows} // The data that you already have
+                getRowId={(row) => row._id} // Unique identifier for each row, based on _id
+                autoHeight // Automatically adjusts the row height based on content
+                initialState={{
+                pagination: {
+                    paginationModel: { page: 0, pageSize: 5 }, // Default page and page size
+                },
+                }}
+                pageSizeOptions={[5, 10]} // Options for the pagination to choose page sizes
+                components={{
+                ColumnHeader: () => null, // Customizes the column header, here it hides it
+                }}
+                getRowHeight={() => 'auto'} // Allows the row height to be auto-adjusted based on content
+            />
+            </Paper>
+
+
+            {/* Dialog for adding or editing a campaign */}
+            <CampaignDialog
+            open={openDialog}
+            setOpen={setOpenDialog}
+            campaignData={campaignData}
+            setCampaign={setCampaign}
+            action={action}
+            rows={rows}
+            setRows={setRows}
+            setAlert={setAlert}
+            setOpenAlert={setOpenAlert}
+            />
+
+            {/* Alert component to show error or success messages */}
+            <Alerts
+            open={openAlert}
+            setOpen={setOpenAlert}
+            alert={alert}
+            setAlert={setAlert}
+            />
+        </Container>
+        </Box>
     );
 }
