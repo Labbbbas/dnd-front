@@ -23,10 +23,11 @@ import {
     characterData,
     setCharacter,
     action,
-    rows,
-    setRows,
+    characterCards,
+    setCharacterCards,
     setAlert,
     setOpenAlert,
+    setVisible,
   }) {
     
     // Close the dialog when the user clicks cancel or closes it
@@ -62,7 +63,10 @@ import {
       if (action === "add") { // If the action is "add"
         try {
           const response = await axios.post("http://127.0.0.1:5000/api/v1/characters", characterData); // Send data to the server to add the character
-          setRows([...rows, response.data]); // Add the new character to the rows
+          setCharacterCards((prevCharacterCards) => {
+            const newCharacterCards = [...prevCharacterCards, response.data]; // Add the new character to the characterCards
+            setVisible((prevVisible) => [...prevVisible, newCharacterCards.length - 1]); // Make the new character visible
+            return newCharacterCards; });
           setAlert({
             message: "Behold! Your creation is alive", // Success message
             severity: "success", // Set the message severity as success
@@ -80,7 +84,7 @@ import {
                 break;
               default:
                 setAlert({
-                  message: "Failed to add character", // Error message
+                  message: randomMessage, // Error message
                   severity: "error", // Set the message severity as error
                 });
                 break;
@@ -98,7 +102,7 @@ import {
       } else if (action === "edit") { // If the action is "edit"
         try {
           const response = await axios.put(`http://127.0.0.1:5000/api/v1/characters/${characterData._id}`, characterData); // Update character on the server
-          setRows(rows.map((row) => (row._id === characterData._id ? response.data : row))); // Update the character in the rows list
+          setCharacterCards(characterCards.map((row) => (row._id === characterData._id ? response.data : row))); // Update the character in the characterCards list
           setAlert({
             message: "The bard improvised. The character sings a new tune!", // Success message
             severity: "success", // Set the message severity as success
@@ -137,7 +141,7 @@ import {
     const handleChange = (event) => {
       setCharacter({
         ...characterData, // Keep the current character data and update only the changed field
-        [event.target.name]: event.target.value, // Set the new value for the specific field
+        [event.target.name]: event.target.value || "", // Set the new value for the specific field
       });
     };
   
@@ -145,67 +149,72 @@ import {
       <Dialog 
         open={open} 
         onClose={handleCloseDialog}
-        sx={{ 
-          '& .MuiDialog-paper': {
-            width: '80%', // Set the width to 80% of the parent container
-            maxWidth: '800px', // Set a fixed maximum width
-          },
-        }}
       > 
         {/* Show the dialog */}
         <DialogTitle style={{ textAlign: "center", fontWeight: "bold", fontSize: "2rem" }}>
           {/* Dialog title changes based on whether we're adding or editing a character */}
-          {action === "add" ? "Create Character" : "Edit Character"}
+          {action === "add" ? "Create Character" : action === "edit" ? "Reshape Character" : "Character Details"}
         </DialogTitle>
         <DialogContent>
+          {action === "view" ? (
+            <>
+              <Typography variant="body1"><strong>Name:</strong> {characterData.characterName}</Typography>
+              <Typography variant="body1"><strong>Race:</strong> {characterData.race}</Typography>
+              <Typography variant="body1"><strong>Class:</strong> {characterData.className}</Typography>
+              <Typography variant="body1"><strong>Alignment:</strong> {characterData.alignment}</Typography>
+              <Typography variant="body1"><strong>Level:</strong> {characterData.level}</Typography>
+              <Typography variant="body1"><strong>Background:</strong> {characterData.background}</Typography>
+              <Typography variant="body1"><strong>Player Name:</strong> {characterData.playerName}</Typography>
+            </>
+          ) : (
           <Grid container spacing={2} justifyContent="center">
 
             {/* First row */}
             <Grid container item xs={12} spacing={2} justifyContent="space-between">
             
                 {/* Character input field */}
-                <Grid item xs={3}>
+                <Grid item xs={12} sm={6} md={3}>
                     <TextField
                         margin="dense" // Adds margin around the text field
                         name="characterName" // The name of the field for easy identification
                         label="Character" // Label to be displayed in the field
                         fullWidth // Makes the text field take the full width of its container
-                        value={characterData.characterName} // The current value of the "character" field
+                        value={characterData.characterName || ""} // The current value of the "character" field
                         onChange={handleChange} // Event handler that updates the state when the input changes
                     />
                 </Grid>
 
                 {/* Race input field */}
-                <Grid item xs={3}>
+                <Grid item xs={12} sm={6} md={3}>
                     <TextField
                         margin="dense"
                         name="race"
                         label="Race"
                         fullWidth
-                        value={characterData.race}
+                        value={characterData.race || ""} // The current value of the "
                         onChange={handleChange} // Updates the state when the race changes
                     />
                 </Grid>
 
                 {/* Class input field */}
-                <Grid item xs={3}>
+                <Grid item xs={12} sm={6} md={3}>
                     <TextField
                         margin="dense"
                         name="className"
-                        label="Class"
+                        label="ClassName"
                         fullWidth
-                        value={characterData.className}
+                        value={characterData.className || ""} // The current value of the "class" field
                         onChange={handleChange} // Updates the state when the class changes
                     />
                 </Grid>
 
                 {/* Alignment selection field */}
-                <Grid item xs={3}>
+                <Grid item xs={12} sm={6} md={3}>
                     <FormControl  fullWidth margin="dense">
                     <InputLabel>Alignment</InputLabel> {/* Label for the input */}
                     <Select
                         name="alignment" // Name of the field
-                        value={characterData.alignment} // The current value of the "alignment"
+                        value={characterData.alignment || ""} // The current value of the "alignment"
                         onChange={handleChange} // Updates the state when the alignment changes
                         label="Alignment"
                     >
@@ -223,65 +232,66 @@ import {
                     </Select>
                     </FormControl>
                 </Grid>
-
             </Grid>
             
             {/* Second row */}
             <Grid container item xs={12} spacing={2} justifyContent="space-between">
 
                 {/* Level input field */}
-                <Grid item xs={2}>
+                <Grid item xs={12} sm={6} md={4}>
                 <TextField
                     margin="dense"
                     name="level"
                     label="Level"
                     fullWidth
                     type="number" // Restricts input to numbers only
-                    value={characterData.level} // The current value of 'level'
+                    value={characterData.level || ""} // The current value of 'level'
                     onChange={handleChange} // Event handler for input change
                     inputProps={{
-                        min: 1, // Minimum allowed value
-                        step: 1, // The increment of the value (in this case, only integers)
+                      min: 1, // Minimum allowed value
+                      step: 1, // The increment of the value (in this case, only integers)
                     }}
                 />
                 </Grid>
 
                 {/* Background input field */}
-                <Grid item xs={5}>
+                <Grid item xs={12} sm={6} md={4}>
                     <TextField
                         margin="dense"
                         name="background"
                         label="Background"
                         fullWidth
-                        value={characterData.background} // The current value of the background field
+                        value={characterData.background || ""} // The current value of the background field
                         onChange={handleChange} // Event handler for when the field changes
                     />
                 </Grid>
 
                 {/* Player Name input field */}
-                <Grid item xs={5}>
+                <Grid item xs={12} sm={6} md={4}>
                 <TextField
                     margin="dense"
                     name="playerName"
                     label="Player Name"
                     fullWidth
-                    value={characterData.playerName} // The current value of the player name field
+                    value={characterData.playerName || ""} // The current value of the player name field
                     onChange={handleChange} // Event handler for when the field changes
                 />
                 </Grid>
-
+                <Grid item xs={12} sm={6} md={12}>
+                    <TextField
+                        margin="dense" // Adds margin around the text field
+                        name="picture" // The name of the field for easy identification
+                        label="Picture URL" // Label to be displayed in the field
+                        fullWidth // Makes the text field take the full width of its container
+                        value={characterData.picture || ""} // The current value of the "character" field
+                        onChange={handleChange} // Event handler that updates the state when the input changes
+                    />
+                </Grid>
             </Grid>
-
           </Grid>
-  
-          {/* Error message to indicate all fields are required */}
-          <Typography variant="h6" align="center" color="error" mt={2}>
-            All fields are required
-          </Typography>
-            
-        {/* Dialog Actions (buttons for Cancel and Save) */}
-        <DialogActions sx={{ justifyContent: "center", gap: 2 }}> {/*gap property adds spacing between the buttons*/}
-          {/* Cancel button */}
+          )}
+        </DialogContent>
+        <DialogActions sx={{ justifyContent: "center", gap: 2 }}> 
           <Button 
             variant="outlined" // Button style (outlined)
             color="secondary" // Button color (secondary)
@@ -289,8 +299,7 @@ import {
           >
             Cancel
           </Button>
-          
-          {/* Save button (Add or Edit depending on the action) */}
+          {action !== "view" && (
           <Button 
             variant="outlined" // Button style (outlined)
             color="primary" // Button color (primary)
@@ -299,9 +308,8 @@ import {
           >
             {action === "add" ? "Create" : "Edit"} 
           </Button>
-        </DialogActions>
-        </DialogContent>
-  
+          )}
+        </DialogActions>  
       </Dialog>
     );
   }
