@@ -1,4 +1,6 @@
 "use client";
+// React hooks for state management
+import { useState, useEffect } from "react";
 
 // Import necessary Material UI components for layout and UI elements
 import { Box, Button, Container, IconButton, Paper } from "@mui/material";
@@ -15,60 +17,58 @@ import { DataGrid } from "@mui/x-data-grid";
 import CampaignDialog from "./components/campaign-dialog";
 import Alerts from "../components/alerts";
 
-// React hooks for state management
-import { useState, useEffect } from "react";
-
 // Axios for making HTTP requests to the backend
 import axios from "axios";
+import { Campaign } from "@mui/icons-material";
 
 export default function Campaigns() {
   // Define columns for the DataGrid table
   // Each column has an appropriate width and flex to make it look aesthetic
     const columns = [
         {
-        field: "name", 
-        headerName: "Campaign",
-        width: 140, 
-        sortable: false, // Disable sorting
-        disableColumnMenu: true, // Disable column menu
-        headerAlign: "center", 
-        align: "center",
-        renderHeader: () => (
-            <Box sx={{ fontWeight: 'bold', textAlign: 'center' }}>
-            Campaign
-            </Box>
-        ),
-        renderCell: (params) => (
-            // So it doesn't look so crowded
-            <Box sx={{ paddingTop: '8px', paddingBottom: '8px', textAlign: 'center' }}>
-            {params.value}
-            </Box>
-        ),
+            field: "title", 
+            headerName: "Campaign",
+            width: 140, 
+            sortable: false, // Disable sorting
+            disableColumnMenu: true, // Disable column menu
+            headerAlign: "center", 
+            align: "center",
+            renderHeader: () => (
+                <Box sx={{ fontWeight: 'bold', textAlign: 'center' }}>
+                Campaign
+                </Box>
+            ),
+            renderCell: (params) => (
+                // So it doesn't look so crowded
+                <Box sx={{ paddingTop: '8px', paddingBottom: '8px', textAlign: 'center' }}>
+                {params.value}
+                </Box>
+            ),
         },
         {
-        field: "dm", 
-        headerName: "Dungeon Master", 
-        width: 140, 
-        sortable: false, // Disable sorting
-        disableColumnMenu: true, // Disable column menu
-        headerAlign: "center", 
-        align: "center",
-        renderHeader: () => (
-            <Box sx={{ fontWeight: 'bold', textAlign: 'center' }}>
-            Dungeon Master
-            </Box>
-        ),
-        renderCell: (params) => (
-            <Box sx={{ 
-                whiteSpace: 'normal', 
-                wordWrap: 'break-word', 
-                textAlign: 'justify', 
-                paddingTop: '8px', 
-                paddingBottom: '8px' 
-            }}>
-            {params.value}
-            </Box>
-        ),
+            field: "dm", 
+            headerName: "Dungeon Master", 
+            width: 140, 
+            sortable: false, // Disable sorting
+            disableColumnMenu: true, // Disable column menu
+            headerAlign: "center", 
+            align: "center",
+            renderHeader: () => (
+                <Box sx={{ fontWeight: 'bold', textAlign: 'center' }}>
+                Dungeon Master
+                </Box>
+            ),
+            renderCell: (params) => (
+                <Box sx={{ 
+                    whiteSpace: 'normal', 
+                    wordWrap: 'break-word', 
+                    textAlign: 'justify', 
+                    paddingTop: '8px', 
+                    paddingBottom: '8px' 
+                }}>
+                {params.value}
+                </Box>
+            ),
         },
         {
             field: "description", 
@@ -96,7 +96,7 @@ export default function Campaigns() {
             ),
         },
         {
-        field: "sts", 
+        field: "status", 
         headerName: "Status", 
         width: 100, 
         sortable: false, // Disable sorting
@@ -174,29 +174,29 @@ export default function Campaigns() {
         ),
         },
         {
-        field: "ql", 
-        headerName: "Quest Log", 
-        width: 200, 
-        sortable: false, // Disable sorting
-        disableColumnMenu: true, // Disable column menu
-        headerAlign: "center", 
-        align: "justify", 
-        renderHeader: () => (
-            <Box sx={{ fontWeight: 'bold', textAlign: 'center' }}>
-            Quest Log
-            </Box>
-        ),
-        renderCell: (params) => (
-            <Box sx={{ 
-            whiteSpace: 'normal', 
-            wordWrap: 'break-word', 
-            textAlign: 'justify', 
-            paddingTop: '8px', 
-            paddingBottom: '8px' 
-            }}>
-            {params.value}
-            </Box>
-        ),
+            field: "ql", 
+            headerName: "Quest Log", 
+            width: 200, 
+            sortable: false, // Disable sorting
+            disableColumnMenu: true, // Disable column menu
+            headerAlign: "center", 
+            align: "justify", 
+            renderHeader: () => (
+                <Box sx={{ fontWeight: 'bold', textAlign: 'center' }}>
+                Quest Log
+                </Box>
+            ),
+            renderCell: (params) => (
+                <Box sx={{ 
+                whiteSpace: 'normal', 
+                wordWrap: 'break-word', 
+                textAlign: 'justify', 
+                paddingTop: '8px', 
+                paddingBottom: '8px' 
+                }}>
+                {params.value}
+                </Box>
+            ),
         },
         {
         field: "actions", 
@@ -219,20 +219,32 @@ export default function Campaigns() {
         },
     ];
     
-    
-
     // State variables to manage data and UI states
     const [action, setAction] = useState(""); // Action (edit, add)
     const [openDialog, setOpenDialog] = useState(false); // Open dialog state
-    const [rows, setRows] = useState(); // Rows for DataGrid
+    const [rows, setRows] = useState([]); // Rows for DataGrid
     const [openAlert, setOpenAlert] = useState(false); // Open alert state
+    
+    const formatCampaignData = (data) => {
+        return data.map((campaign) => ({
+            ...campaign,
+            title: campaign.title,
+            sts: campaign.status,
+            pc: campaign.pc.map((character) => character.characterName).join(", "),
+        }));
+    };
+
+    useEffect(() => {
+        fetchCampaigns();
+    }, []);
+
     const [alert, setAlert] = useState({
         message: "",
         severity: "",
     }); // Alert message and severity (error, success)
     const [campaignData, setCampaign] = useState({
         id: null,
-        name: "",
+        title: "",
         dm: "",
         description: "",
         sts: "",
@@ -242,24 +254,23 @@ export default function Campaigns() {
         ql: "",
     }); // Campaign data to be added or edited
 
-    // Fetch the classes from the server when the component is mounted
-    useEffect(() => {
-        fetchCampaigns();
-    }, []); // Empty dependency array means it runs only once when the component mounts
-
     // Fetch the list of classes from the backend
     const fetchCampaigns = async () => {
         try {
-        const response = await axios.get("http://127.0.0.1:3000/campaigns"); //http://127.0.0.1:5000/api/v1/campaigns
-        setRows(response.data); // Set the fetched classes to the state
+            const requests = [
+                axios.get("http://localhost:5000/api/v1/campaigns"),
+                axios.get("https://campaigns/api/v1/campaigns"),
+            ];
+            const response = await Promise.any(requests);
+            setRows(response.data); // Set the fetched classes to the state
         } catch (error) {
-        console.error("Error fetching campaigns", error);
-        // Display an alert if there is an error
-        setAlert({
-            message: "Failed to load campaigns",
-            severity: "error",
-        });
-        setOpenAlert(true); // Open the alert
+            console.error("Error fetching campaigns", error);
+            // Display an alert if there is an error
+            setAlert({
+                message: "Failed to load campaigns",
+                severity: "error",
+            });
+            setOpenAlert(true); // Open the alert
         }
     };
 
@@ -270,33 +281,52 @@ export default function Campaigns() {
         setOpenDialog(true); // Open the dialog
         // If adding a class, clear the form fields
         if (action === "add") {
-        setCampaign({
-            id: null,
-            name: "",
-            dm: "",
-            description: "",
-            sts: "",
-            startDate: "",
-            endDate: "",
-            pc: "",
-            ql: "",
-        });
+            setCampaign({
+                id: null,
+                title: "",
+                dm: "",
+                description: "",
+                sts: "",
+                startDate: "",
+                endDate: "",
+                pc: [""],
+                ql: "",
+            });
         } else if (action === "edit") {
-        setCampaign(campaignData); // If editing, load the class data into the form
+            formatCampaignData(campaignData);
+            setCampaign(campaignData); // If editing, load the class data into the form
         } else {
-        console.warn("Unknown action:", action);
+            console.warn("Unknown action:", action);
         }
     };
 
     // Delete a class from the database
     const deleteCampaign = async (id) => {
         try {
-        await axios.delete(`http://127.0.0.1:5000/api/v1/campaigns/${id}`);
-        setRows(rows.filter((row) => row._id !== id)); // Remove the deleted class from the table
-        setAlert({
-            message: "Campaign deleted successfully",
-            severity: "success",
-        });
+            const requests = [
+                axios.delete(`http://localhost:5000/api/v1/campaigns/${id}`,
+                    {
+                        'mode': 'no-cors',
+	                    'headers': {
+                            'Access-Control-Allow-Origin': '*',
+                        }
+                    }
+                ),
+                axios.delete(`https://campaigns/api/v1/campaigns/${id}`,
+                    {
+                        'mode': 'no-cors',
+                        'headers': {
+                            'Access-Control-Allow-Origin': '*',
+                        }
+                    }
+                )
+            ];
+            await Promise.any(requests);
+            setRows(rows.filter((row) => row._id !== id)); // Remove the deleted class from the table
+            setAlert({
+                message: "Campaign deleted successfully",
+                severity: "success",
+            });
         } catch (error) {
         console.error("Error deleting campaign: ", error);
         setAlert({
@@ -324,25 +354,27 @@ export default function Campaigns() {
 
             {/* DataGrid table for displaying campaigns */}
             <Paper sx={{ 
-            overflow: 'auto', // Enables scrolling if content overflows
-            maxHeight: 'calc(100vh - 100px)', // Sets a maximum height based on the viewport height minus 100px
-            width: '80%', // Sets the width to 80% of the parent container
-            maxWidth: '1200px', // Sets a maximum fixed width for the Paper component
-            margin: '0 auto', // Centers the Paper horizontally
+                overflow: 'auto', // Enables scrolling if content overflows
+                maxHeight: 'calc(100vh - 100px)', // Sets a maximum height based on the viewport height minus 100px
+                width: '80%', // Sets the width to 80% of the parent container
+                maxWidth: '1200px', // Sets a maximum fixed width for the Paper component
+                margin: '0 auto', // Centers the Paper horizontally
             }}>
             <DataGrid
                 columns={columns} // The columns that you already have defined
-                rows={rows} // The data that you already have
+                rows={rows.map((row) => (
+                    { ...row, pc: row.pc.map((char) => char.characterName).join(", "), Campaign: row.title }
+                ))} // The data that you already have
                 getRowId={(row) => row._id} // Unique identifier for each row, based on _id
                 autoHeight // Automatically adjusts the row height based on content
                 initialState={{
-                pagination: {
-                    paginationModel: { page: 0, pageSize: 5 }, // Default page and page size
-                },
+                    pagination: {
+                        paginationModel: { page: 0, pageSize: 5 }, // Default page and page size
+                    },
                 }}
                 pageSizeOptions={[5, 10]} // Options for the pagination to choose page sizes
                 components={{
-                ColumnHeader: () => null, // Customizes the column header, here it hides it
+                    ColumnHeader: () => null, // Customizes the column header, here it hides it
                 }}
                 getRowHeight={() => 'auto'} // Allows the row height to be auto-adjusted based on content
             />
@@ -351,23 +383,23 @@ export default function Campaigns() {
 
             {/* Dialog for adding or editing a campaign */}
             <CampaignDialog
-            open={openDialog}
-            setOpen={setOpenDialog}
-            campaignData={campaignData}
-            setCampaign={setCampaign}
-            action={action}
-            rows={rows}
-            setRows={setRows}
-            setAlert={setAlert}
-            setOpenAlert={setOpenAlert}
+                open={openDialog}
+                setOpen={setOpenDialog}
+                campaignData={campaignData}
+                setCampaign={setCampaign}
+                action={action}
+                rows={rows}
+                setRows={setRows}
+                setAlert={setAlert}
+                setOpenAlert={setOpenAlert}
             />
 
             {/* Alert component to show error or success messages */}
             <Alerts
-            open={openAlert}
-            setOpen={setOpenAlert}
-            alert={alert}
-            setAlert={setAlert}
+                open={openAlert}
+                setOpen={setOpenAlert}
+                alert={alert}
+                setAlert={setAlert}
             />
         </Container>
         </Box>
