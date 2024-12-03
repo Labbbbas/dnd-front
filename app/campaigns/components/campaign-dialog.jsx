@@ -1,8 +1,10 @@
 "use client";
-import { PieChart } from "@mui/icons-material";
-import { useState, useEffect } from 'react';
+import CloseIcon from '@mui/icons-material/Close';
+
+import { useState, useEffect, act } from 'react';
 import {
     Dialog,
+    DateField,
     TextField,
     DialogContent,
     DialogTitle,
@@ -11,6 +13,7 @@ import {
     Select,
     MenuItem,
     InputLabel,
+    IconButton,
     FormControl,
     Chip,
     Box,
@@ -38,90 +41,253 @@ export default function CampaignDialog({
         setOpen(false); // Close the dialog
     };
 
-    // Convert string to array for status (on edit)
-    const normalizeStatus = (sts) => {
-        return Array.isArray(sts) ? sts : sts.split(", ").filter(Boolean);
-    };
-
-    // Convert string to array for saving player characters (on edit)
-    const normalizePlayerCharacters = (pc) => {
-        return Array.isArray(pc) ? pc : PieChart.split(", ").filter(Boolean);
-    };
-
     // Normalize campaignData on initial load or when editing
     const [normalizedCampaignData, setNormalizedCampaignData] = useState({
-        role: '',
-        dm: '',
-        description: '',
-        sts: '',
-        startDate: '',
-        endDate: '',
+        id: null,
+        title: "",
+        dm: "",
+        description: "",
+        status: "",
+        startDate: "",
+        endDate: "",
         pc: [],
-        ql: ''
+        ql: "",
     });
 
+    const [playerCharacters, setPlayerCharacters] = useState([
+        "Sinko MC",
+        "Qatro NX", 
+    ]);
 
-    // Save the class data based on whether it's an "add" or "edit" action
+    const fetchCharacters = async () => {
+        console.log(playerCharacters);
+
+        // Verificar si normalizedCampaignData.pc es un string
+        if (campaignData && typeof normalizedCampaignData.pc === "string") {
+            // Convertir el string a un array de personajes (eliminando los espacios y separando por coma)
+            const charactersArray = normalizedCampaignData.pc.split(',').map(char => char.trim());
+
+            // Agregar estos personajes al estado de playerCharacters, sin duplicados
+            setPlayerCharacters((prevState) => {
+                // Concatenar los personajes existentes con los nuevos y filtrar los duplicados
+                const updatedCharacters = [...prevState, ...charactersArray];
+                const uniqueCharacters = [...new Set(updatedCharacters)];
+                return uniqueCharacters;
+            });
+        }
+
+        try {
+                      //axios.get("https://characters:8002/api/v1/characters"),
+            const response = await axios.get("http://127.0.0.1:5000/api/v1/characters");
+
+            setAlert({
+                message: "Characters loaded successfully",
+                severity: "success",
+            });
+            setOpenAlert(true);
+            setPlayerCharacters(response.data.map((character) => character.named));
+            // also add the character to the normalizedCampaignData
+            if (normalizedCampaignData) {
+                setPlayerCharacters((prevState) => [
+                    ...prevState,
+                    ...normalizedCampaignData.pc,
+                ]);
+            }
+        } catch (error) {
+            
+            setAlert({
+                message: "Error loading characters",
+                severity: "error",
+            });
+            console.log(error);
+            
+            setOpenAlert(true);
+        }
+    };
+
+    const formatDateToMDY = (dateString) => {
+        const [year, month, day] = dateString.split('-');
+        if (!year || !month || !day) {
+            return ''; // Return an empty string if any part of the date is missing
+        }
+        return `${month}-${day}-${year}`;
+    };
+
     const saveCampaign = async () => {
+        const campaignDataToSend = {
+            ...normalizedCampaignData,
+            status: normalizedCampaignData.status,
+            pc: normalizedCampaignData.pc, // Remove empty or invalid entries
+            startDate: formatDateToMDY(normalizedCampaignData.startDate),
+            endDate: formatDateToMDY(normalizedCampaignData.endDate),
+        };
 
-    const campaignDataToSend = {
-        ...normalizedCampaignData,
-        sts: normalizedCampaignData.sts.join(", "), // Convert array to string when sending data
-        pc: normalizedCampaignData.pc.join(", "), // Convert array to string when sending data
+        console.log(campaignDataToSend);
+        console.log(action);
+
+        if (action === "add") {
+            try {
+                // axios.post("https://campaigns:8001/api/v1/campaigns", campaignDataToSend);
+                const response = await axios.post("http://127.0.0.1:5000/api/v1/campaigns", campaignDataToSend);
+                setRows([...rows, response.data]); // Add the new campaign to the rows
+                setAlert({
+                    message: "Campaign added successfully",
+                    severity: "success",
+                });
+                setOpenAlert(true); // Show the alert
+                handleCloseDialog(); // Close the dialog after saving
+            } catch (error) {
+                // Check if it's an Axios error
+                if (axios.isAxiosError(error)) {
+                    if (error.code === 'ECONNABORTED' || error.message === 'Network Error') {
+                        // Handle NetworkError
+                        setAlert({
+                            message: "Network Error: Please check your connection.",
+                            severity: "error",
+                        });
+                    } else if (error.response && error.response.status === 404) {
+                        // Handle 404 error (Not Found)
+                        setAlert({
+                            message: "API endpoint not found (404).",
+                            severity: "error",
+                        });
+                    } else {
+                        // General Axios errors
+                        setAlert({
+                            message: "Failed to add campaign",
+                            severity: "error",
+                        });
+                        console.error(error.response);
+                    }
+                } else {
+                    // Non-Axios errors
+                    setAlert({
+                        message: error.response.data.message,
+                        severity: "error",
+                    });
+                    console.error(error);
+                }
+                setOpenAlert(true); // Show the alert
+            }
+        } else if (action === "edit") {
+            try {
+                const response = await axios.put(`http://127.0.0.1:5000/api/v1/campaigns/${campaignData._id}`, campaignDataToSend);
+                setRows(rows.map((row) => (row._id === campaignData._id ? response.data : row))); // Update the campaign in the rows list
+                setAlert({
+                    message: "Campaign updated successfully",
+                    severity: "success",
+                });
+                setOpenAlert(true); // Show the alert
+                handleCloseDialog(); // Close the dialog after saving
+            } catch (error) {
+                // Check if it's an Axios error
+                console.log(error);
+                if(error.response){
+                    switch (error.response.status) {
+                        case 400:
+                            setAlert({
+                                message: "Bad request: The server did not understand the request.",
+                                severity: "error",
+                            });
+                            break;
+                        case 401:
+                            setAlert({
+                                message: "Error validating title",
+                                severity: "error",
+                            });
+                            break;
+                        case 402:
+                            setAlert({
+                                message: "Error validating description",
+                                severity: "error",
+                            });
+                            break;
+                        case 403:
+                            setAlert({
+                                message: "Error validating DM",
+                                severity: "error",
+                            });
+                            break;
+                        case 405:
+                            setAlert({
+                                message: "Error validating status",
+                                severity: "error",
+                            });
+                            break;
+                        case 406:
+                            setAlert({
+                                message: "Error validating player characters, their size must be 2 or more",
+                                severity: "error",
+                            });
+                            break;
+                        case 407:
+                            setAlert({
+                                message: "Error validating start date",
+                                severity: "error",
+                            });
+                            break;
+                        case 408:
+                            setAlert({
+                                message: "Error validating end date",
+                                severity: "error",
+                            });
+                            break;
+                        case 409:
+                            setAlert({
+                                message: "Error validating quest log",
+                                severity: "error",
+                            });
+                            break;
+                        default:
+                            setAlert({
+                                message: error.response.data.message,
+                                severity: "error",
+                            });
+                            break;    
+                    }                     
+                    
+                }
+                setOpenAlert(true); // Show the alert
+            }
+        }
     };
 
-    if (action === "add") { // If the action is "add"
-        try {
-        const requests = [
-            axios.post("http://127.0.0.1:5000/api/v1/campaigns", campaignDataToSend),
-            axios.post("https://campaigns/api/v1/campaigns", campaignDataToSend),
-        ];
-        const response = await Promise.any(requests); // Add class on the server
-        setRows([...rows, response.data]); // Add the new class to the rows
-        setAlert({
-            message: "Campaign added successfully", // Success message
-            severity: "success", // Set the message severity as success
-        });
-        } catch (error) {
-        // console.error("Error adding classes", error);
-        setAlert({
-            message: "Failed to add campaign", // Error message
-            severity: "error", // Set the message severity as error
-        });
-        }
-        setOpenAlert(true); // Show the alert
 
-    } else if (action === "edit") { // If the action is "edit"
-        try {
-        const requests = [
-                axios.put(`http://127.0.0.1:5000/api/v1/campaigns/${campaignData._id}`, campaignDataToSend), // Update class on the server
-                axios.put(`https://campaigns/api/v1/campaigns/${campaignData._id}`, campaignDataToSend), // Update class on the server
-        ];
-        const response = await Promise.any(requests);
-        setRows(rows.map((row) => (row._id === campaignData._id ? response.data : row))); // Update the class in the rows list
-        setAlert({
-            message: "Campaign updated successfully", // Success message
-            severity: "success", // Set the message severity as success
-        });
-        } catch (error) {
-        // console.error("Error updating classes", error);
-        setAlert({
-            message: "Failed to update campaign", // Error message
-            severity: "error", // Set the message severity as error
-        });
-        }
-        setOpenAlert(true); // Show the alert
-    }
-    handleCloseDialog(); // Close the dialog after saving
+    const handleRemoveCharacter = (characterToRemove) => {
+        const updatedPc = normalizedCampaignData.pc.filter(
+            (character) => character !== characterToRemove
+        );
+        setNormalizedCampaignData((prevState) => ({
+            ...prevState,
+            pc: updatedPc,
+        }));
     };
 
-    // Set initial values for startDate and endDate when campaignData is loaded or edited
+    const formatDateToYMD = (dateString) => {
+        const [month, day, year] = dateString.split('-');
+        if (!month || !day || !year) {
+            return ''; // Return an empty string if any part of the date is missing
+        }
+        return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+    };
+
     useEffect(() => {
         if (campaignData) {
+            setNormalizedCampaignData({
+                id: campaignData._id,
+                title: campaignData.title || "",
+                dm: campaignData.dm || "",
+                description: campaignData.description || "",
+                status: campaignData.status || "",
+                startDate: formatDateToYMD(campaignData.startDate) || "",
+                endDate: formatDateToYMD(campaignData.endDate) || "",
+                pc: campaignData.pc || [],
+                ql: campaignData.ql || ""
+            });
         }
+        fetchCharacters();
     }, [campaignData]);
 
-    // Handle changes in the input fields and update the campaignData state
     const handleChange = (event) => {
         const { name, value } = event.target;
         setNormalizedCampaignData(prevData => ({
@@ -130,26 +296,20 @@ export default function CampaignDialog({
         }));
     };
 
-
-    // Handle changes for multiple selections (Status)
     const handleStatusChange = (event) => {
         const { value } = event.target;
-        setCampaign({
-            ...normalizedCampaignData,
-            sts: value, // Keep the value as an array
-            });
+        setNormalizedCampaignData(prevData => ({
+            ...prevData,
+            status: value // Keep the array as it is
+        }));
     };
 
-    // Handle changes for multiple selections (Player Characters)
     const handleSavingPlayerCharactersChange = (event) => {
         const { value } = event.target;
-        if (value.length <= 2) { // at least two player characters
-            setCampaign({
-                ...normalizedCampaignData,
-                pc: value, // Keep the value as an array
-            });
-        }
-        
+        setNormalizedCampaignData(prevData => ({
+            ...prevData,
+            pc: value // Keep the array as it is
+        }));
     };
 
     return (
@@ -176,10 +336,10 @@ export default function CampaignDialog({
             <Grid item xs={12} sm={6} container justifyContent="center">
                 <TextField
                     margin="dense" // Adds margin around the text field
-                    name="name" // The name of the field for easy identification
-                    label="Name" // Label to be displayed in the field
+                    name="title" // The name of the field for easy identification
+                    label="Title" // Label to be displayed in the field
                     fullWidth // Makes the text field take the full width of its container
-                    value={normalizedCampaignData.role } // The current value of the "role" field
+                    value={normalizedCampaignData.title } // The current value of the "role" field
                     onChange={handleChange} // Event handler that updates the state when the input changes
                 />
             </Grid>
@@ -217,7 +377,7 @@ export default function CampaignDialog({
                 <InputLabel>Status</InputLabel> {/* Label for the input */}
                 <Select
                     name="status" // Name of the field
-                    value={normalizedCampaignData.sts} // The current value of the "status"
+                    value={normalizedCampaignData.status} // The current value of the "status"
                     onChange={handleStatusChange} // Updates the state when the status changes
                     label="Status"
                 >
@@ -232,82 +392,80 @@ export default function CampaignDialog({
             {/* Start Date selection field */}
             <Grid item xs={12} sm={4}>
                 <FormControl fullWidth margin="dense">
-                <TextField
-                    type="date" 
-                    name="startDate"
-                    label="Start Date"
-                    value={normalizedCampaignData.startDate }
-                    onChange={handleChange}
-                    required
-                    fullWidth
-                    slotProps={{
-                        inputLabel: { shrink: true }, 
-                    }}
-                />
-                <FormHelperText>Choose a start date for the campaign</FormHelperText>
+                    <TextField
+                        type="date"
+                        name="startDate"
+                        label="Start Date"
+                        value={normalizedCampaignData.startDate || new Date().toISOString().split('T')[0]} // Get today's date in YYYY-MM-DD format
+                        onChange={handleChange}
+                        required
+                        fullWidth
+                        slotProps={{
+                            inputLabel: { shrink: true },
+                        }}
+                    />
+                    <FormHelperText>Choose a start date for the campaign</FormHelperText>
                 </FormControl>
             </Grid>
 
             {/* End Date selection field */}
             <Grid item xs={12} sm={4}>
                 <FormControl fullWidth margin="dense">
-                <TextField
-                    type="date" 
-                    name="endDate"
-                    value={normalizedCampaignData.endDate }
-                    onChange={handleChange}
-                    label="End Date"
-                    required
-                    fullWidth
-                    slotProps={{
-                        inputLabel: { shrink: true }, 
-                    }}
-                />
-                <FormHelperText>Choose an end date for the campaign</FormHelperText>
+                    <TextField
+                        type="date"
+                        name="endDate"
+                        value={normalizedCampaignData.endDate || new Date().toISOString().split('T')[0]} // Get today's date in YYYY-MM-DD format
+                        onChange={handleChange}
+                        label="End Date"
+                        required
+                        fullWidth
+                        slotProps={{
+                            inputLabel: { shrink: true },
+                        }}
+                    />
+                    <FormHelperText>Choose an end date for the campaign</FormHelperText>
                 </FormControl>
             </Grid>
 
             {/* Saving Player Characters selection field (multiple options) */}
             <Grid item xs={12} sm={4} justifyContent="center">
                 <FormControl fullWidth margin="dense">
-                <InputLabel>Player Characters</InputLabel>
-                <Select
-                    name="pc" // The name of the field for easy identification
-                    multiple // Allows multiple selections for saving throw proficiencies
-                    value={normalizedCampaignData.pc  } // The selected saving throw proficiencies
-                    onChange={handleSavingPlayerCharactersChange} // Event handler for when the proficiencies change
-                    label="Player Characters"
-                    renderValue={(selected) => (
-                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                        {/* Displays the selected proficiencies as chips */}
-                        {selected.map((value) => (
-                        <Chip key={value} label={value} />
+                    <InputLabel>Player Characters</InputLabel>
+                    <Select
+                        name="pc"
+                        multiple
+                        value={
+                            Array.isArray(normalizedCampaignData.pc)
+                                ? normalizedCampaignData.pc
+                                : normalizedCampaignData.pc.split(", ").map((char) => char.trim()) || []
+                        } // Ensure it is always an array and remove unnecessary spaces
+                        onChange={handleSavingPlayerCharactersChange}
+                        label="Player Characters"
+                    >
+                        {/* Ensure these values match exactly with the array items */}
+                        {playerCharacters.map((char) => (
+                            <MenuItem key={char} value={char}>
+                                {char}
+                            </MenuItem>
                         ))}
-                    </Box>
-                    )}
-                >
-                    {/* Available saving throw proficiencies */}
-                    <MenuItem value="Strength">Strength</MenuItem>
-                    <MenuItem value="Charisma">Charisma</MenuItem>
-                    <MenuItem value="Wisdom">Wisdom</MenuItem>
-                </Select>
-                <FormHelperText>Select two or more options</FormHelperText>
+                    </Select>
+                    <FormHelperText>Select two or more options</FormHelperText>
                 </FormControl>
             </Grid>
             </Grid>
 
             {/* Quest Log input field */}
             <Grid item xs={12}>
-            <TextField
-                margin="dense"
-                name="ql"
-                label="Quest Log"
-                fullWidth
-                value={normalizedCampaignData.ql} 
-                onChange={handleChange} // Event handler for when the field changes
-            />
+                <TextField
+                    margin="dense"
+                    name="ql"
+                    label="Quest Log"
+                    fullWidth
+                    value={normalizedCampaignData.ql} 
+                    onChange={handleChange} // Event handler for when the field changes
+                />
             </Grid>
-        </Grid>
+            </Grid>
 
         {/* Error message to indicate all fields are required */}
         <Typography variant="h6" align="center" color="error" mt={2}>

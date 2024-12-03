@@ -247,10 +247,10 @@ export default function Campaigns() {
         title: "",
         dm: "",
         description: "",
-        sts: "",
+        status: "",
         startDate: "",
         endDate: "",
-        pc: "",
+        pc: [],
         ql: "",
     }); // Campaign data to be added or edited
 
@@ -259,7 +259,7 @@ export default function Campaigns() {
         try {
             const requests = [
                 axios.get("http://localhost:5000/api/v1/campaigns"),
-                axios.get("https://campaigns/api/v1/campaigns"),
+                axios.get("https://campaigns:8001/api/v1/campaigns"),
             ];
             const response = await Promise.any(requests);
             setRows(response.data); // Set the fetched classes to the state
@@ -278,7 +278,6 @@ export default function Campaigns() {
     const handleCampaign = ({ action, campaignData }) => {
         console.info("Handle campaign action:", action);
         setAction(action); // Set the current action (add/edit)
-        setOpenDialog(true); // Open the dialog
         // If adding a class, clear the form fields
         if (action === "add") {
             setCampaign({
@@ -286,18 +285,19 @@ export default function Campaigns() {
                 title: "",
                 dm: "",
                 description: "",
-                sts: "",
+                status: "",
                 startDate: "",
                 endDate: "",
-                pc: [""],
+                pc: [],
                 ql: "",
             });
         } else if (action === "edit") {
-            formatCampaignData(campaignData);
+            //            formatCampaignData(campaignData);
             setCampaign(campaignData); // If editing, load the class data into the form
         } else {
             console.warn("Unknown action:", action);
         }
+        setOpenDialog(true); // Open the dialog
     };
 
     // Delete a class from the database
@@ -312,7 +312,7 @@ export default function Campaigns() {
                         }
                     }
                 ),
-                axios.delete(`https://campaigns/api/v1/campaigns/${id}`,
+                axios.delete(`https://campaigns:8001/api/v1/campaigns/${id}`,
                     {
                         'mode': 'no-cors',
                         'headers': {
@@ -360,27 +360,29 @@ export default function Campaigns() {
                 maxWidth: '1200px', // Sets a maximum fixed width for the Paper component
                 margin: '0 auto', // Centers the Paper horizontally
             }}>
-            <DataGrid
-                columns={columns} // The columns that you already have defined
-                rows={rows.map((row) => (
-                    { ...row, pc: row.pc.map((char) => char.characterName).join(", "), Campaign: row.title }
-                ))} // The data that you already have
-                getRowId={(row) => row._id} // Unique identifier for each row, based on _id
-                autoHeight // Automatically adjusts the row height based on content
-                initialState={{
-                    pagination: {
-                        paginationModel: { page: 0, pageSize: 5 }, // Default page and page size
-                    },
-                }}
-                pageSizeOptions={[5, 10]} // Options for the pagination to choose page sizes
-                components={{
-                    ColumnHeader: () => null, // Customizes the column header, here it hides it
-                }}
-                getRowHeight={() => 'auto'} // Allows the row height to be auto-adjusted based on content
-            />
+                <DataGrid
+                    columns={columns} // The columns that you already have defined
+                    rows={ rows.map((row) => ({
+                        ...row,
+                        pc: [...new Set(row.pc.map((char) => char.characterName))].join(", "),
+                    Campaign: row.title
+                    }))
+                    } // The rows that you already have defined
+
+                    getRowId={(row) => row._id} // Unique identifier for each row, based on _id
+                    autoHeight // Automatically adjusts the row height based on content
+                    initialState={{
+                        pagination: {
+                            paginationModel: { page: 0, pageSize: 5 }, // Default page and page size
+                        },
+                    }}
+                    pageSizeOptions={[5, 10]} // Options for the pagination to choose page sizes
+                    components={{
+                        ColumnHeader: () => null, // Customizes the column header, here it hides it
+                    }}
+                    getRowHeight={() => 'auto'} // Allows the row height to be auto-adjusted based on content
+                />
             </Paper>
-
-
             {/* Dialog for adding or editing a campaign */}
             <CampaignDialog
                 open={openDialog}
