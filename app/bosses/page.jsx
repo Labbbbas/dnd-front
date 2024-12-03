@@ -1,5 +1,8 @@
 "use client";
+
+import { useRouter } from "next/navigation";
 import { Box, Button, Card, CardActions, CardMedia, Container, IconButton, Slide, Typography } from "@mui/material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack"; // Import the back arrow icon
 import Grid from "@mui/material/Grid2";
 import CardContent from '@mui/material/CardContent';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
@@ -11,7 +14,12 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { darkTheme } from "../styles/global-theme";
 
+
+
 export default function Bosses() {
+  // State for back to homepage.
+  const router = useRouter();
+
   // State for tracking the current action (add, edit, view)
   const [action, setAction] = useState("");
 
@@ -33,6 +41,11 @@ export default function Bosses() {
   // State for tracking which items are visible
   const [visible, setVisible] = useState([]);
 
+  //To homepage
+  const handleBack = () => {
+    router.push("/"); // to homepage
+  };
+  
   // Function to handle mouse enter event
   const handleMouseEnter = () => {
     // Play hover sound effect
@@ -45,6 +58,7 @@ export default function Bosses() {
     const sound = new Audio("/SFX/click_ufo.mp3");
     sound.play().catch(error => console.log("Sound playback error: ", error)); // Catch any playback errors
   }
+
 
   // State for storing individual Boss data
   const [bossData, setBoss] = useState({
@@ -114,16 +128,61 @@ export default function Bosses() {
 
   return (
     <Container maxWidth="xl" disableGutters>
-      <Box sx={{ display: "flex", justifyContent: "center", mb: 2, mt: 2 }}>
-        <Button
-          startIcon={<AddCircleIcon />}
-          variant="contained"
-          sx={{ borderRadius: 3 }}
-          onClick={() => handleBoss({ action: "add", bossData: {} })} // Handle adding a new Boss
-        >
-          Add Boss
-        </Button>
-      </Box>
+    <Box sx={{display: "flex", flexDirection: "column", alignItems: "center", mb: 2, mt: 2,}}>
+
+      {/* Button to Home*/}
+      <Button
+        onClick={handleBack}
+        variant="outlined"
+
+        sx={{
+          position: "absolute",
+          top: 90,
+          left: 30,
+          borderRadius: "50%",
+          width: 50,
+          height: 50,
+          minWidth: 0, 
+          padding: 0,
+        }}
+      >
+        <ArrowBackIcon />
+      </Button>
+
+      {/* Title */}
+      <Typography
+        variant="h3"
+        sx={{
+          position: "absolute",
+          top: "30%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+        }}
+      >
+        BOSSES 
+      </Typography>
+
+      {/* Banner */}
+      <img
+        src="/bannerPages.png"
+        alt="Banner"
+        style={{
+          width: "60%", // Ensures the image fits the container
+          objectFit: "cover", // Crops the image proportionally to fill the container
+        }}
+      />
+
+      {/*Button ADD*/}
+      <Button
+        startIcon={<AddCircleIcon />}
+        variant="contained"
+        sx={{ borderRadius: 3, mt: 2 }} // Adds margin-top to create space below the image
+        onClick={() => handleBoss({ action: "add", bossData: {} })} // Handle adding a new Boss
+      >
+        Add Boss
+      </Button>
+      
+    </Box>
       <Grid container spacing={4} justifyContent={"center"}>
         {bossCards.map((iterator, index) => (
           <Slide in={visible.includes(index)} direction="up" key={iterator._id} timeout={{ enter: 300 }}>

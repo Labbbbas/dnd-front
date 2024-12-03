@@ -1,12 +1,15 @@
 "use client";
 
+import { useRouter } from "next/navigation"; 
+
 // Import necessary Material UI components for layout and UI elements
-import { Box, Button, Container, IconButton, Paper } from "@mui/material";
+import { Box, Button, Container, IconButton, Paper, Typography } from "@mui/material";
 
 // Import icons for actions like editing and deleting
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import WhatshotIcon from '@mui/icons-material/Whatshot';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
+import ArrowBackIcon from "@mui/icons-material/ArrowBack"; // Import the back arrow icon
 
 // Import DataGrid component for displaying data in a table
 import { DataGrid } from "@mui/x-data-grid";
@@ -22,6 +25,8 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 
 export default function Weapons() {
+  const router = useRouter();
+
   // Define columns for the DataGrid table
   const columns = [
     { field: "_id", headerName: "ID", width: 30 },
@@ -79,6 +84,11 @@ export default function Weapons() {
     weight: "",
     // extra: ""
   }); // Weapon data to be added or edited
+
+    //To homepage
+    const handleBack = () => {
+      router.push("/"); // to homepage
+    };
 
   // Fetch the weapons from the server when the component is mounted
   useEffect(() => {
@@ -148,8 +158,53 @@ export default function Weapons() {
   return (
     <Container maxWidth="xl" disableGutters>
       {/* Button to add a new weapon */}
-      <Box sx={{ display: "flex", justifyContent: "center", mb: 2, mt: 2 }}>
+        {/* Button to add a new class */}
+        <Box sx={{display: "flex", flexDirection: "column", alignItems: "center", mb: 2, mt: 2,}}>
+        
+        {/* Button to Home*/}
         <Button
+          onClick={handleBack}
+          variant="outlined"
+
+          sx={{
+            position: "absolute",
+            top: 90,
+            left: 30,
+            borderRadius: "50%",
+            width: 50,
+            height: 50,
+            minWidth: 0, 
+            padding: 0,
+          }}
+        >
+          <ArrowBackIcon />
+        </Button>
+
+        {/* Title */}
+        <Typography
+          variant="h4"
+          sx={{
+            position: "absolute",
+            top: "30%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+          }}
+        >
+          WEAPONS
+        </Typography>
+
+        {/* Banner */}
+        <img
+          src="/bannerPages.png"
+          alt="Banner"
+          style={{
+            width: "60%", // Ensures the image fits the container
+            objectFit: "cover", // Crops the image proportionally to fill the container
+          }}
+        />
+
+      {/*Button ADD*/}    
+      <Button
           startIcon={<AddCircleIcon />}
           variant="contained"
           sx={{ borderRadius: 3 }}
