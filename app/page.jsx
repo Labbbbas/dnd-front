@@ -5,20 +5,18 @@ import { Grid, Box, Button, Typography } from "@mui/material"; // Importing MUI 
 import { useRouter } from "next/navigation"; // For navigating to different pages
 
 const clickEffect = "/clickEffect.mp3"; // Path to the click sound effect
-const cardEffect = "/cardEffect.mp3"; // Path to the mouse hover sound effect
+const cardEffect = "SFX/hover_tick.mp3"; // Path to the mouse hover sound effect
 
 // Array of cards, each representing a section with a title, description, image, and link.
 const card = [
   { name: "Characters", description: "Create your hero and embark on legendary quests!", tittle: "Characters", img: "https://online.anyflip.com/afgs/xkls/files/mobile/163.jpg", link: "/characters" },
-  { name: "Maps", description: "Explore vast lands and uncover hidden secrets.", tittle: "Maps", img: "https://online.anyflip.com/afgs/xkls/files/mobile/181.jpg", link: "/maps" },
   { name: "Campaigns", description: "Choose your path in epic adventures.", tittle: "Campaigns", img: "https://online.anyflip.com/afgs/xkls/files/mobile/173.jpg", link: "/campaigns" },
-  { name: "Enemies", description: "Face fearsome foes and survive the fight.", tittle: "Enemies", img: "https://online.anyflip.com/afgs/xkls/files/mobile/207.jpg", link: "/enemies" },
   { name: "NPCs", description: "Meet the characters who shape your world.", tittle: "NPCs", img: "https://online.anyflip.com/afgs/xkls/files/mobile/11.jpg", link: "/npcs" },
   { name: "Bosses", description: "Defeat mighty bosses to claim your glory!", tittle: "Bosses", img: "https://online.anyflip.com/afgs/xkls/files/mobile/201.jpg", link: "/bosses" },
   { name: "Classes", description: "Choose your class and harness its power.", tittle: "Classes", img: "https://online.anyflip.com/afgs/xkls/files/mobile/45.jpg", link: "/classes" },
-  { name: "Tools and Weapons", description: "Equip yourself for the challenges ahead.", tittle: "Tools and Weapons", img: "https://online.anyflip.com/afgs/xkls/files/mobile/189.jpg", link: "/tools-and-weapons" },
+  { name: "Weapons", description: "Equip yourself for the challenges ahead.", tittle: "Weapons", img: "https://online.anyflip.com/afgs/xkls/files/mobile/189.jpg", link: "/weapons" },
 ];
-
+                  
 const HomePage = () => {
   const router = useRouter(); // Hook for navigation
   const [background, setBackground] = useState(""); // State to store the background image when hovering over cards
@@ -50,15 +48,36 @@ const HomePage = () => {
     <Box
       sx={{
         marginTop: 5,
-        backgroundImage: background ? `url(${background})` : "url(https://images7.alphacoders.com/131/thumb-1920-1312474.jpg)", // Conditional background image
+        backgroundImage: background ? `url(${background})` : "url(/background.png)", // Conditional background image
         backgroundSize: "cover",
         backgroundPosition: "center",
         transition: "background-image 0.5s ease", // Smooth transition for background change
         paddingBottom: "40px",
         paddingLeft: "20px",
         paddingRight: "20px",
+        height: "100vh",
       }}
     >
+    {/* Banner */}
+    <Box
+      sx={{
+        display: "flex", // Defines a flexible container
+        justifyContent: "center", // Aligns the content horizontally
+        alignItems: "center", // Aligns the content vertically
+        marginBottom: "35px", // Adds space below the box
+      }}
+    >
+      <img
+        src="/banner.jpg"
+        alt="Banner"
+        style={{
+          width: "100%", // Stretches the image to the full width of the page
+          height: "180px", // Sets a fixed height of 350px
+          objectFit: "cover", // Crops the image to fill the defined area without distortion
+        }}
+      />
+    </Box>
+
       <Grid container spacing={5} justifyContent="center" alignItems="center">
         {/* Mapping over the cards array to display each card */}
         {card.map((card, index) => (
