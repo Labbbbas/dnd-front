@@ -12,7 +12,6 @@ import axios from "axios";
 import { darkTheme } from "../styles/global-theme";
 
 export default function Bosses() {
-
   // State for tracking the current action (add, edit, view)
   const [action, setAction] = useState("");
 
@@ -20,7 +19,7 @@ export default function Bosses() {
   const [openDialog, setOpenDialog] = useState(false);
 
   // State for storing Boss cards data
-  const [bossCards, setBossCards] = useState([ ]);
+  const [bossCards, setBossCards] = useState([]);
 
   // State for managing the visibility of alerts
   const [openAlert, setOpenAlert] = useState(false);
@@ -47,29 +46,30 @@ export default function Bosses() {
     sound.play().catch(error => console.log("Sound playback error: ", error)); // Catch any playback errors
   }
 
+  // State for storing individual Boss data
   const [bossData, setBoss] = useState({
     _id: null,
-    name: "",
-    type: "",
+    named: "",
+    typed: "",
     cr: "",
     hp: "",
     ac: "",
-    resistances: [],
-    immunities: [],
+    resistances: "",
+    immunities: "",
     abilities: "",
-    picture: "",
   });
 
-  // Fetch the bosses from the server when the component is mounted
+  // Fetch Boss data when the component mounts
   useEffect(() => {
     fetchBosses();
-  }, []); // Empty dependency array means it runs only once when the component mounts
+  }, []);
 
-  // Fetch the list of bosses from the backend
+  // Function to fetch Boss data from the server
   const fetchBosses = async () => {
     try {
       const response = await axios.get("http://127.0.0.1:5000/api/v1/bosses");
-      setBossCards(response.data); // Set the fetched bosses to the state
+      setBossCards(response.data); // Update bossCards state with fetched data
+
       // Make items visible with a delay
       response.data.forEach((_, index) => {
         setTimeout(() => {
@@ -78,14 +78,14 @@ export default function Bosses() {
       });
     } catch (error) {
       setAlert({
-        message: "Failed to load bosses",
-        severity: "error",
+        message: "Failed to load Bosses",
+        severity: "error"
       });
-      setOpenAlert(true); // Open the alert
+      setOpenAlert(true); // Show alert on error
     }
   };
 
-
+  // Function to handle actions on Bosses (add, edit, view)
   const handleBoss = ({ action, bossData }) => {
     console.log("bossData", bossData);
     setBoss(bossData); // Set the current Boss data
@@ -97,8 +97,8 @@ export default function Bosses() {
   // Function to delete an Boss by ID
   const deleteBoss = async (id) => {
     try {
-      await axios.delete(`http://127.0.0.1:5000/api/v1/bosses/${id}`);
-      setBossCards(bossCards.filter((boss) => boss._id !== id)); // Remove deleted Boss from bossCards
+      await axios.delete(`http://127.0.0.1:5000/api/v1/Bosses/${id}`);
+      setBossCards(bossCards.filter((boss) => boss._id !== id)); // Remove deleted boss from bossCards
       setAlert({
         message: "Your Boss has been obliterated!",
         severity: "success"
@@ -154,7 +154,7 @@ export default function Bosses() {
                     {iterator.typed}
                   </Typography>
                   <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                    {iterator.resistances}
+                    {iterator.hp}
                   </Typography>
                   <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                     {iterator.immunities}

@@ -11,15 +11,15 @@ import Grid from "@mui/material/Grid";
 import axios from "axios";
 import { useEffect, useState } from "react";
 
-// This component handles showing the dialog for adding, editing, or viewing a Boss
+// This component handles showing the dialog for adding, editing, or viewing a boss
 export default function BossDialog({
   open,          // Boolean to control dialog visibility
   setOpen,       // Function to set dialog visibility
-  bossData,       // State to hold the current Boss data
+  bossData,       // State to hold the current boss data
   setBoss,        // Function to update bossData state
   action,        // Current action ("add", "edit", "view")
-  bossCards,      // List of current Boss cards
-  setBossCards,   // Function to update the list of Boss cards
+  bossCards,      // List of current boss cards
+  setBossCards,   // Function to update the list of boss cards
   setAlert,      // Function to set alert messages
   setOpenAlert,   // Function to control alert visibility
   setVisible
@@ -149,14 +149,14 @@ export default function BossDialog({
         {/* Render input fields or typography based on action */}
         {action === "view" ? (
           <>
-            <Typography variant="body1"><strong>Name: </strong> {bossData.named}</Typography>
-            <Typography variant="body1"><strong>Type: </strong> {bossData.typed}</Typography>
-            <Typography variant="body1"><strong>Challenge Rating: </strong> {bossData.cr}</Typography>
-            <Typography variant="body1"><strong>Hit Points: </strong> {bossData.hp}</Typography>
-            <Typography variant="body1"><strong>Armor Class: </strong> {bossData.ac}</Typography>
-            <Typography variant="body1"><strong>Resistances: </strong> {bossData.resistances}</Typography>
-            <Typography variant="body1"><strong>Immunities: </strong> {bossData.immunities}</Typography>
-            <Typography variant="body1"><strong>Abilities: </strong> {bossData.abilities}</Typography>
+            <Typography variant="body1"><strong>Name:</strong> {bossData.named}</Typography>
+            <Typography variant="body1"><strong>Type:</strong> {bossData.typed}</Typography>
+            <Typography variant="body1"><strong>Challenge Rating:</strong> {bossData.cr}</Typography>
+            <Typography variant="body1"><strong>Hit Points:</strong> {bossData.hp}</Typography>
+            <Typography variant="body1"><strong>Armor Class:</strong> {bossData.ac}</Typography>
+            <Typography variant="body1"><strong>Resistances:</strong> {bossData.resistances}</Typography>
+            <Typography variant="body1"><strong>Immunities:</strong> {bossData.immunities}</Typography>
+            <Typography variant="body1"><strong>Abilities:</strong> {bossData.abilities}</Typography>
           </>
         ) : (
           <Grid container spacing={2} justifyContent="center">
@@ -208,7 +208,7 @@ export default function BossDialog({
                 multiline
                 minRows={1}
                 maxRows={4}
-                value={bossData.cr || ""}
+                value={bossData.cr}
                 onChange={handleChange}
               />
             </Grid>
@@ -221,7 +221,7 @@ export default function BossDialog({
                 multiline
                 minRows={1}
                 maxRows={4}
-                value={bossData.hp || ""}
+                value={bossData.hp}
                 onChange={handleChange}
               />
             </Grid>
@@ -234,7 +234,7 @@ export default function BossDialog({
                 multiline
                 minRows={1}
                 maxRows={4}
-                value={bossData.ac || ""}
+                value={bossData.ac}
                 onChange={handleChange}
               />
             </Grid>
@@ -247,7 +247,7 @@ export default function BossDialog({
                 multiline
                 minRows={1}
                 maxRows={4}
-                value={bossData.resistances || ""}
+                value={bossData.resistances}
                 onChange={handleChange}
               />
             </Grid>
@@ -259,7 +259,7 @@ export default function BossDialog({
                 multiline
                 minRows={1}
                 maxRows={4}
-                value={bossData.immunities || ""}
+                value={bossData.immunities}
                 onChange={handleChange}
               />
             </Grid>
@@ -271,7 +271,7 @@ export default function BossDialog({
                 multiline
                 minRows={1}
                 maxRows={4}
-                value={bossData.abilities || ""}
+                value={bossData.abilities}
                 onChange={handleChange}
               />
             </Grid>
