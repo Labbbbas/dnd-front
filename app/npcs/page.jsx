@@ -1,9 +1,13 @@
 "use client";
+import { useRouter } from "next/navigation"; 
+
 import { Box, Button, Card, CardActions, CardMedia, Container, IconButton, Slide, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import CardContent from '@mui/material/CardContent';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import WhatshotIcon from '@mui/icons-material/Whatshot';
+import ArrowBackIcon from "@mui/icons-material/ArrowBack"; // Import the back arrow icon
+
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import Alerts from "../components/alerts";
 import NpcDialog from "./components/npc-dialog";
@@ -12,6 +16,8 @@ import axios from "axios";
 import { darkTheme } from "../styles/global-theme";
 
 export default function Npcs() {
+  const router = useRouter();
+
   // State for tracking the current action (add, edit, view)
   const [action, setAction] = useState("");
 
@@ -58,6 +64,11 @@ export default function Npcs() {
     money: "",
     backstory: "",
   });
+
+    //To homepage
+    const handleBack = () => {
+      router.push("/"); // to homepage
+    };
 
   // Fetch NPC data when the component mounts
   useEffect(() => {
@@ -114,16 +125,61 @@ export default function Npcs() {
 
   return (
     <Container maxWidth="xl" disableGutters>
-      <Box sx={{ display: "flex", justifyContent: "center", mb: 2, mt: 2 }}>
+        {/* Button to add a new class */}
+        <Box sx={{display: "flex", flexDirection: "column", alignItems: "center", mb: 2, mt: 2,}}>
+
+        {/* Button to Home*/}
         <Button
-          startIcon={<AddCircleIcon />}
-          variant="contained"
-          sx={{ borderRadius: 3 }}
-          onClick={() => handleNpc({ action: "add", npcData: {} })} // Handle adding a new NPC
+          onClick={handleBack}
+          variant="outlined"
+
+          sx={{
+            position: "absolute",
+            top: 90,
+            left: 30,
+            borderRadius: "50%",
+            width: 50,
+            height: 50,
+            minWidth: 0, 
+            padding: 0,
+          }}
         >
-          Add NPC
-        </Button>
-      </Box>
+          <ArrowBackIcon />
+        </Button>        
+
+        {/* Title */}
+        <Typography
+          variant="h2"
+          sx={{
+            position: "absolute",
+            top: "30%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+          }}
+        >
+          NPCS
+        </Typography>
+
+        {/* Banner */}
+        <img
+          src="/bannerPages.png"
+          alt="Banner"
+          style={{
+            width: "60%", // Ensures the image fits the container
+            objectFit: "cover", // Crops the image proportionally to fill the container
+          }}
+        />
+
+        {/*Button ADD*/}
+      <Button
+        startIcon={<AddCircleIcon />}
+        variant="contained"
+        sx={{ borderRadius: 3, mt: 2 }} // Adds margin-top to create space below the image
+        onClick={() => handleNpc({ action: "add", npcData: {} })} // Handle adding a new NPC
+      >
+        Add NPC
+      </Button>
+    </Box>
       <Grid container spacing={4} justifyContent={"center"}>
         {npcCards.map((iterator, index) => (
           <Slide in={visible.includes(index)} direction="up" key={iterator._id} timeout={{ enter: 300 }}>
