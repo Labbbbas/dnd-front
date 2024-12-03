@@ -30,7 +30,7 @@ import {
     const saveWeapon = async () => {
       if (action == "add") { // If the action is "add"
         try {
-          const response = await axios.post("http://127.0.0.1:5000/api/v1/weapons", weaponData); // Send data to the server to add the weapon
+          const response = await axios.post("http://localhost:8005/api/v1/weapons", weaponData); // Send data to the server to add the weapon
           setRows([...rows, response.data]); // Add the new weapon to the rows
           setAlert({
             message: "Weapon added successfully", // Success message
@@ -47,7 +47,7 @@ import {
   
       } else if (action === "edit") { // If the action is "edit"
         try {
-          const response = await axios.put(`http://127.0.0.1:5000/api/v1/weapons/${weaponData._id}`, weaponData); // Update weapon on the server
+          const response = await axios.put(`http://localhost:8005/api/v1/weapons/${weaponData._id}`, weaponData); // Update weapon on the server
           setRows(rows.map((row) => (row._id === weaponData._id ? response.data : row))); // Update the weapon in the rows list
           setAlert({
             message: "Weapon updated successfully", // Success message

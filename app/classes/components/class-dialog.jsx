@@ -85,7 +85,7 @@ export default function ClassDialog({
 
     if (action === "add") { // If the action is "add"
       try {
-        const response = await axios.post("http://127.0.0.1:5000/api/v1/classes", classDataToSend); // Send data to the server to add the class
+        const response = await axios.post("http://localhost:8003/api/v1/classes", classDataToSend); // Send data to the server to add the class
         setRows([...rows, response.data]); // Add the new class to the rows
         setAlert({
           message: "Behold! Your creation is alive", // Success message
@@ -121,7 +121,7 @@ export default function ClassDialog({
       RandomPick();
     } else if (action === "edit") { // If the action is "edit"
       try {
-        const response = await axios.put(`http://127.0.0.1:5000/api/v1/classes/${classData._id}`, classDataToSend); // Update class on the server
+        const response = await axios.put(`http://localhost:8003/api/v1/classes/${classData._id}`, classDataToSend); // Update class on the server
         setRows(rows.map((row) => (row._id === classData._id ? response.data : row))); // Update the class in the rows list
         setAlert({
           message: "The bard improvised. The class sings a new tune!", // Success message

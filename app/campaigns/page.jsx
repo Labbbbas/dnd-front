@@ -257,11 +257,7 @@ export default function Campaigns() {
     // Fetch the list of classes from the backend
     const fetchCampaigns = async () => {
         try {
-            const requests = [
-                axios.get("http://localhost:5000/api/v1/campaigns"),
-                axios.get("https://campaigns:8001/api/v1/campaigns"),
-            ];
-            const response = await Promise.any(requests);
+            const response = await axios.get("http://localhost:8001/api/v1/campaigns");
             setRows(response.data); // Set the fetched classes to the state
         } catch (error) {
             console.error("Error fetching campaigns", error);
@@ -303,25 +299,15 @@ export default function Campaigns() {
     // Delete a class from the database
     const deleteCampaign = async (id) => {
         try {
-            const requests = [
-                axios.delete(`http://localhost:5000/api/v1/campaigns/${id}`,
-                    {
-                        'mode': 'no-cors',
-	                    'headers': {
-                            'Access-Control-Allow-Origin': '*',
-                        }
+            
+            await axios.delete(`http://localhost:8001/api/v1/campaigns/${id}`,
+                {
+                    'mode': 'no-cors',
+                    'headers': {
+                        'Access-Control-Allow-Origin': '*',
                     }
-                ),
-                axios.delete(`https://campaigns:8001/api/v1/campaigns/${id}`,
-                    {
-                        'mode': 'no-cors',
-                        'headers': {
-                            'Access-Control-Allow-Origin': '*',
-                        }
-                    }
-                )
-            ];
-            await Promise.any(requests);
+                }
+            );
             setRows(rows.filter((row) => row._id !== id)); // Remove the deleted class from the table
             setAlert({
                 message: "Campaign deleted successfully",
