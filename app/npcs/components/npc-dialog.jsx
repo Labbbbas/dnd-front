@@ -57,7 +57,7 @@ export default function NpcDialog({
   const saveNpc = async () => {
     if (action === "add") { // If the action is "add"
       try {
-        const response = await axios.post("https://localhost:8004/api/v1/npcs", npcData); // Send data to the server to add the npc
+        const response = await axios.post("http://localhost:8004/api/v1/npcs", npcData); // Send data to the server to add the npc
         setNpcCards((prevNpcCards) => {
           const newNpcCards = [...prevNpcCards, response.data]; // Add the new npc to the list 
           setVisible((prevVisible) => [...prevVisible, newNpcCards.length - 1]); // Animate the new npc 
@@ -95,7 +95,7 @@ export default function NpcDialog({
       RandomPick();
     } else if (action === "edit") { // If the action is "edit"
       try {
-        const response = await axios.put(`https://localhost:8004/api/v1/npcs/${npcData._id}`, npcData); // Update npc on the server
+        const response = await axios.put(`http://localhost:8004/api/v1/npcs/${npcData._id}`, npcData); // Update npc on the server
         setNpcCards(npcCards.map((row) => (row._id === npcData._id ? response.data : row))); // Update the npc in the list
         setAlert({
           message: "The scrolls of destiny have been rewritten. Your NPC is now reborn!", // Success message

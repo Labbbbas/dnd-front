@@ -257,7 +257,7 @@ export default function Campaigns() {
     // Fetch the list of classes from the backend
     const fetchCampaigns = async () => {
         try {
-            const response = await axios.get("https://localhost:8001/api/v1/campaigns");
+            const response = await axios.get("http://localhost:8001/api/v1/campaigns");
             setRows(response.data); // Set the fetched classes to the state
         } catch (error) {
             console.error("Error fetching campaigns", error);
@@ -300,7 +300,7 @@ export default function Campaigns() {
     const deleteCampaign = async (id) => {
         try {
             
-            await axios.delete(`https://localhost:8001/api/v1/campaigns/${id}`,
+            await axios.delete(`http://localhost:8001/api/v1/campaigns/${id}`,
                 {
                     'mode': 'no-cors',
                     'headers': {

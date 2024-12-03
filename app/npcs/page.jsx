@@ -78,7 +78,7 @@ export default function Npcs() {
   // Function to fetch NPC data from the server
   const fetchNpcs = async () => {
     try {
-      const response = await axios.get("https://localhost:8004/api/v1/npcs");
+      const response = await axios.get("http://localhost:8004/api/v1/npcs");
       setNpcCards(response.data); // Update npcCards state with fetched data
 
       // Make items visible with a delay
@@ -108,7 +108,7 @@ export default function Npcs() {
   // Function to delete an NPC by ID
   const deleteNpc = async (id) => {
     try {
-      await axios.delete(`https://localhost:8004/api/v1/npcs/${id}`);
+      await axios.delete(`http://localhost:8004/api/v1/npcs/${id}`);
       setNpcCards(npcCards.filter((npc) => npc._id !== id)); // Remove deleted NPC from npcCards
       setAlert({
         message: "Your NPC has been obliterated!",
