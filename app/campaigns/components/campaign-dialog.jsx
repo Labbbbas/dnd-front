@@ -78,7 +78,7 @@ export default function CampaignDialog({
 
         try {
                       //axios.get("https://characters:8002/api/v1/characters"),
-            const response = await axios.get("http://127.0.0.1:5000/api/v1/characters");
+            const response = await axios.get("https://localhost:8002/api/v1/characters");
 
             setAlert({
                 message: "Characters loaded successfully",
@@ -128,7 +128,7 @@ export default function CampaignDialog({
         if (action === "add") {
             try {
                 // axios.post("https://campaigns:8001/api/v1/campaigns", campaignDataToSend);
-                const response = await axios.post("http://127.0.0.1:5000/api/v1/campaigns", campaignDataToSend);
+                const response = await axios.post("https://localhost:8001/api/v1/campaigns", campaignDataToSend);
                 setRows([...rows, response.data]); // Add the new campaign to the rows
                 setAlert({
                     message: "Campaign added successfully",
@@ -171,7 +171,7 @@ export default function CampaignDialog({
             }
         } else if (action === "edit") {
             try {
-                const response = await axios.put(`http://127.0.0.1:5000/api/v1/campaigns/${campaignData._id}`, campaignDataToSend);
+                const response = await axios.put(`https://localhost:8001/api/v1/campaigns/${campaignData._id}`, campaignDataToSend);
                 setRows(rows.map((row) => (row._id === campaignData._id ? response.data : row))); // Update the campaign in the rows list
                 setAlert({
                     message: "Campaign updated successfully",

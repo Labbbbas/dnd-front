@@ -1,0 +1,6 @@
+*/venv/
+*.gitignore
+*.git
+
+README.md
+# .env

@@ -79,7 +79,7 @@ export default function Characters() {
   // Function to fetch Character data from the server
   const fetchCharacters = async () => {
     try {
-      const response = await axios.get("http://127.0.0.1:5000/api/v1/characters");
+      const response = await axios.get("https://localhost:8002/api/v1/characters");
       setCharacterCards(response.data); // Update characterCards state with fetched data
 
       // Make items visible with a delay
@@ -125,7 +125,7 @@ export default function Characters() {
   // Function to delete an Character by ID
   const deleteCharacter = async (id) => {
     try {
-      await axios.delete(`http://127.0.0.1:5000/api/v1/characters/${id}`);
+      await axios.delete(`https://localhost:8002/api/v1/characters/${id}`);
       setCharacterCards(characterCards.filter((character) => character._id !== id)); // Remove deleted Character from characterCards
       setAlert({
         message: randDeleteMessage(),
