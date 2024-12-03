@@ -19,7 +19,7 @@ const card = [
   { name: "Tools and Weapons", description: "Equip yourself for the challenges ahead.", tittle: "Tools and Weapons", img: "https://online.anyflip.com/afgs/xkls/files/mobile/189.jpg", link: "/tools-and-weapons" },
 ];
 
-const homePage = () => {
+const HomePage = () => {
   const router = useRouter(); // Hook for navigation
   const [background, setBackground] = useState(""); // State to store the background image when hovering over cards
   const [rotatingIndex, setRotatingIndex] = useState(null); // State to store the index of the rotated card
@@ -195,4 +195,4 @@ const homePage = () => {
   );
 };
 
-export default homePage; 
+export default HomePage; 
