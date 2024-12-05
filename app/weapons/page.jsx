@@ -29,16 +29,158 @@ export default function Weapons() {
 
   // Define columns for the DataGrid table
   const columns = [
-    { field: "_id", headerName: "ID", width: 30 },
-    { field: "named", headerName: "Name", flex: 2 },
-    { field: "category", headerName: "Category", flex: 1 },
-    { field: "cost", headerName: "Cost", flex: 1 },
-    { field: "damage", headerName: "Damage", flex: 1 },
-    { field: "properties", headerName: "Properties", flex: 1 },
-    { field: "description", headerName: "Description", flex: 1 },
-    { field: "weight", headerName: "Weight", flex: 1 },
-    // Commented out extra field
-    // { field: "extra", headerName: "Extra", flex: 1 },
+    {
+      field: "named", 
+      headerName: "Name",
+      width: 130,
+      sortable: false, // Disable sorting
+      disableColumnMenu: true, // Disable column menu
+      headerAlign: "center", 
+      align: "center",
+      renderHeader: () => (
+        <Box sx={{ fontWeight: 'bold', textAlign: 'center' }}>
+          Name
+        </Box>
+      ),
+      renderCell: (params) => (
+        // So it doesn't look so crowded
+        <Box sx={{ paddingTop: '8px', paddingBottom: '8px', textAlign: 'center' }}>
+          {params.value}
+        </Box>
+      ),
+    },
+    {
+      field: "category", 
+      headerName: "Category", 
+      width: 130,
+      sortable: false, // Disable sorting
+      disableColumnMenu: true, // Disable column menu
+      headerAlign: "center", 
+      align: "center", 
+      renderHeader: () => (
+        <Box sx={{ fontWeight: 'bold', textAlign: 'center' }}>
+          Category
+        </Box>
+      ),
+      renderCell: (params) => (
+        <Box sx={{ 
+          whiteSpace: 'normal', 
+          wordWrap: 'break-word', 
+          textAlign: 'center', 
+          paddingTop: '8px', 
+          paddingBottom: '8px' 
+        }}>
+          {params.value}
+        </Box>
+      ),
+    },
+    {
+      field: "cost", 
+      headerName: "Cost", 
+      width: 100, 
+      sortable: false, // Disable sorting
+      disableColumnMenu: true, // Disable column menu
+      headerAlign: "center", 
+      align: "center",
+      renderHeader: () => (
+        <Box sx={{ fontWeight: 'bold', textAlign: 'center' }}>
+          Cost
+        </Box>
+      ),
+      renderCell: (params) => (
+        <Box sx={{ paddingTop: '8px', paddingBottom: '8px', textAlign: 'center' }}>
+          {params.value}
+        </Box>
+      ),
+    },
+    {
+      field: "damage", 
+      headerName: "Damage", 
+      width: 150, 
+      sortable: false, // Disable sorting
+      disableColumnMenu: true, // Disable column menu
+      headerAlign: "center", 
+      align: "center", 
+      renderHeader: () => (
+        <Box sx={{ fontWeight: 'bold', textAlign: 'center' }}>
+          Damage
+        </Box>
+      ),
+      renderCell: (params) => (
+        <Box sx={{ paddingTop: '8px', paddingBottom: '8px', textAlign: 'center' }}>
+          {params.value}
+        </Box>
+      ),
+    },
+    {
+      field: "properties", 
+      headerName: "Properties", 
+      width: 200, 
+      sortable: false, // Disable sorting
+      disableColumnMenu: true, // Disable column menu
+      headerAlign: "center", 
+      align: "center", 
+      renderHeader: () => (
+        <Box sx={{ fontWeight: 'bold', textAlign: 'center' }}>
+          Properties
+        </Box>
+      ),
+      renderCell: (params) => (
+        <Box sx={{ paddingTop: '8px', paddingBottom: '8px', textAlign: 'center' }}>
+          {params.value}
+        </Box>
+      ),
+    },
+    {
+      field: "description", 
+      headerName: "Description", 
+      width: 240, 
+      sortable: false, // Disable sorting
+      disableColumnMenu: true, // Disable column menu
+      headerAlign: "center", 
+      align: "justify", 
+      renderHeader: () => (
+        <Box sx={{ fontWeight: 'bold', textAlign: 'center' }}>
+          Description
+        </Box>
+      ),
+      renderCell: (params) => (
+        <Box sx={{ 
+          whiteSpace: 'normal', 
+          wordWrap: 'break-word', 
+          textAlign: 'justify', 
+          paddingTop: '8px', 
+          paddingBottom: '8px' 
+        }}>
+          {params.value}
+        </Box>
+      ),
+    },
+    {
+      field: "weight", 
+      headerName: "Weight", 
+      width: 100, 
+      sortable: false, // Disable sorting
+      disableColumnMenu: true, // Disable column menu
+      headerAlign: "center", 
+      align: "justify", 
+      renderHeader: () => (
+        <Box sx={{ fontWeight: 'bold', textAlign: 'center' }}>
+          Weight
+        </Box>
+      ),
+      renderCell: (params) => (
+        <Box sx={{ 
+          whiteSpace: 'normal', 
+          wordWrap: 'break-word', 
+          textAlign: 'center', 
+          paddingTop: '8px', 
+          paddingBottom: '8px' 
+        }}>
+          {params.value}
+        </Box>
+      ),
+    },
     {
       field: "actions",
       headerName: "",
@@ -215,27 +357,29 @@ export default function Weapons() {
       </Box>
 
       {/* DataGrid table for displaying weapons */}
-      <Paper
-        sx={{
-          padding: 2,
-          borderRadius: 2,
-          maxWidth: "80%",
-          margin: "0 auto",
-          height: "400px",
-        }}
-      >
+      <Paper sx={{ 
+          overflow: 'auto', // Enables scrolling if content overflows
+          maxHeight: 'calc(100vh - 100px)', // Sets a maximum height based on the viewport height minus 100px
+          width: '80%', // Sets the width to 80% of the parent container
+          maxWidth: '1200px', // Sets a maximum fixed width for the Paper component
+          margin: '0 auto', // Centers the Paper horizontally
+        }}>
         <DataGrid
-          columns={columns} // Columns to display
-          rows={rows} // Data to populate the table
-          getRowId={(row) => row._id} // Unique ID for each row
-          initialState={{
-            pagination: {
-              paginationModel: { page: 0, pageSize: 5 },
-            },
-          }}
-          pageSizeOptions={[5, 10]} // Page size options for pagination
-         
-        />
+            columns={columns} // The columns that you already have defined
+            rows={rows} // The data that you already have
+            getRowId={(row) => row._id} // Unique identifier for each row, based on _id
+            autoHeight // Automatically adjusts the row height based on content
+            initialState={{
+              pagination: {
+                paginationModel: { page: 0, pageSize: 5 }, // Default page and page size
+              },
+            }}
+            pageSizeOptions={[5, 10]} // Options for the pagination to choose page sizes
+            components={{
+              ColumnHeader: () => null, // Customizes the column header, here it hides it
+            }}
+            getRowHeight={() => 'auto'} // Allows the row height to be auto-adjusted based on content
+          />
       </Paper>
 
       {/* Dialog for adding or editing a weapon */}

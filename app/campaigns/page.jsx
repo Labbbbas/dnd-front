@@ -260,7 +260,7 @@ export default function Campaigns() {
             const response = await axios.get("http://localhost:8001/api/v1/campaigns");
             setRows(response.data); // Set the fetched classes to the state
         } catch (error) {
-            console.error("Error fetching campaigns", error);
+            //console.error("Error fetching campaigns", error);
             // Display an alert if there is an error
             setAlert({
                 message: "Failed to load campaigns",
@@ -291,7 +291,7 @@ export default function Campaigns() {
             //            formatCampaignData(campaignData);
             setCampaign(campaignData); // If editing, load the class data into the form
         } else {
-            console.warn("Unknown action:", action);
+            //console.warn("Unknown action:", action);
         }
         setOpenDialog(true); // Open the dialog
     };
@@ -314,7 +314,7 @@ export default function Campaigns() {
                 severity: "success",
             });
         } catch (error) {
-        console.error("Error deleting campaign: ", error);
+        //console.error("Error deleting campaign: ", error);
         setAlert({
             message: "Failed to delete campaign",
             severity: "error",
