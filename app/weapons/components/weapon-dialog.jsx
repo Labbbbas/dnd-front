@@ -52,7 +52,7 @@ import { useState, useEffect } from "react";
     const saveWeapon = async () => {
       if (action == "add") { // If the action is "add"
         try {
-          const response = await axios.post("http://localhost:8005/api/v1/weapons", weaponData); // Send data to the server to add the weapon
+          const response = await axios.post("http://api_weapon:8005/api/v1/weapons", weaponData); // Send data to the server to add the weapon
           setRows([...rows, response.data]); // Add the new weapon to the rows
           setAlert({
             message: "Behold! Your weapon is ready to use", // Success message
@@ -88,7 +88,7 @@ import { useState, useEffect } from "react";
         RandomPick();
       } else if (action === "edit") { // If the action is "edit"
         try {
-          const response = await axios.put(`http://localhost:8005/api/v1/weapons/${weaponData._id}`, weaponData); // Update weapon on the server
+          const response = await axios.put(`http://api_weapon:8005/api/v1/weapons/${weaponData._id}`, weaponData); // Update weapon on the server
           setRows(rows.map((row) => (row._id === weaponData._id ? response.data : row))); // Update the weapon in the rows list
           setAlert({
             message: "Your weapon is reforged—stronger than ever! Ready for battle!”", // Success message

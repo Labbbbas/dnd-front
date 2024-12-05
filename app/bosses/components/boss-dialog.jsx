@@ -57,7 +57,7 @@ export default function BossDialog({
   const saveBoss = async () => {
     if (action === "add") { // If the action is "add"
       try {
-        const response = await axios.post("http://localhost:8000/api/v1/bosses", bossData); // Send data to the server to add the boss
+        const response = await axios.post("http://api_boss:8000/api/v1/bosses", bossData); // Send data to the server to add the boss
         setBossCards((prevBossCards) => {
           const newBossCards = [...prevBossCards, response.data]; // Add the new boss to the list 
           setVisible((prevVisible) => [...prevVisible, newBossCards.length - 1]); // Animate the new boss 
@@ -95,7 +95,7 @@ export default function BossDialog({
       RandomPick();
     } else if (action === "edit") { // If the action is "edit"
       try {
-        const response = await axios.put(`http://localhost:8000/api/v1/bosses/${bossData._id}`, bossData); // Update boss on the server
+        const response = await axios.put(`http://api_boss:8000/api/v1/bosses/${bossData._id}`, bossData); // Update boss on the server
         setBossCards(bossCards.map((row) => (row._id === bossData._id ? response.data : row))); // Update the boss in the list
         setAlert({
           message: "The scrolls of destiny have been rewritten. Your Boss is now reborn!", // Success message

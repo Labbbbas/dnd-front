@@ -81,7 +81,7 @@ export default function Bosses() {
   // Function to fetch Boss data from the server
   const fetchBosses = async () => {
     try {
-      const response = await axios.get("http://localhost:8000/api/v1/bosses");
+      const response = await axios.get("http://api_boss:8000/api/v1/bosses");
       setBossCards(response.data); // Update bossCards state with fetched data
 
       // Make items visible with a delay
@@ -111,7 +111,7 @@ export default function Bosses() {
   // Function to delete an Boss by ID
   const deleteBoss = async (id) => {
     try {
-      await axios.delete(`http://localhost:8000/api/v1/bosses/${id}`);
+      await axios.delete(`http://api_boss:8000/api/v1/bosses/${id}`);
       setBossCards(bossCards.filter((boss) => boss._id !== id)); // Remove deleted boss from bossCards
       setAlert({
         message: "Your Boss has been obliterated!",
@@ -152,6 +152,7 @@ export default function Bosses() {
       {/* Title */}
       <Typography
         variant="h3"
+        fontFamily={"Georgia"}
         sx={{
           position: "absolute",
           top: "30%",

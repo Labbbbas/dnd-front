@@ -63,7 +63,7 @@ import {
       if (action === "add") { // If the action is "add"
         try {
           console.log(characterCards)
-          const response = await axios.post("http://localhost:8002/api/v1/characters", characterData); // Send data to the server to add the character
+          const response = await axios.post("http://api_character:8002/api/v1/characters", characterData); // Send data to the server to add the character
           setCharacterCards((prevCharacterCards) => {
             const newCharacterCards = [...prevCharacterCards, response.data]; // Add the new character to the characterCards
             setVisible((prevVisible) => [...prevVisible, newCharacterCards.length - 1]); // Make the new character visible
@@ -102,7 +102,7 @@ import {
         RandomPick();
       } else if (action === "edit") { // If the action is "edit"
         try {
-          const response = await axios.put(`http://localhost:8002/api/v1/characters/${characterData._id}`, characterData); // Update character on the server
+          const response = await axios.put(`http://api_character:8002/api/v1/characters/${characterData._id}`, characterData); // Update character on the server
           setCharacterCards(characterCards.map((row) => (row._id === characterData._id ? response.data : row))); // Update the character in the characterCards list
           setAlert({
             message: "The bard improvised. The character sings a new tune!", // Success message

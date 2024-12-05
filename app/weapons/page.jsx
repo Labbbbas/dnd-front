@@ -240,7 +240,7 @@ export default function Weapons() {
   // Fetch the list of weapons from the backend
   const fetchWeapons = async () => {
     try {
-      const response = await axios.get("http://localhost:8005/api/v1/weapons");
+      const response = await axios.get("http://api_weapon:8005/api/v1/weapons");
       setRows(response.data); // Set the fetched weapons to the state
     } catch (error) {
       //console.error("Error fetching weapons", error);
@@ -281,7 +281,7 @@ export default function Weapons() {
   // Delete a weapon from the database
   const deleteWeapon = async (id) => {
     try {
-      await axios.delete(`http://localhost:8005/api/v1/weapons/${id}`);
+      await axios.delete(`http://api_weapon:8005/api/v1/weapons/${id}`);
       setRows(rows.filter((row) => row._id !== id)); // Remove the deleted weapon from the table
       setAlert({
         message: "Weapon deleted successfully",
@@ -324,7 +324,8 @@ export default function Weapons() {
 
         {/* Title */}
         <Typography
-          variant="h4"
+          variant="h3"
+          fontFamily={"Georgia"}
           sx={{
             position: "absolute",
             top: "30%",
