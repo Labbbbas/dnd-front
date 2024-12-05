@@ -111,7 +111,7 @@ export default function Bosses() {
   // Function to delete an Boss by ID
   const deleteBoss = async (id) => {
     try {
-      await axios.delete(`http://locahost:8000/api/v1/Bosses/${id}`);
+      await axios.delete(`http://localhost:8000/api/v1/bosses/${id}`);
       setBossCards(bossCards.filter((boss) => boss._id !== id)); // Remove deleted boss from bossCards
       setAlert({
         message: "Your Boss has been obliterated!",

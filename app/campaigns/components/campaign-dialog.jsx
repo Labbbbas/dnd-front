@@ -81,11 +81,11 @@ export default function CampaignDialog({
             const response = await axios.get("http://localhost:8002/api/v1/characters");
 
             setAlert({
-                message: "Characters loaded successfully",
+                message: "Characters loaded successfully",  
                 severity: "success",
             });
             setOpenAlert(true);
-            setPlayerCharacters(response.data.map((character) => character.named));
+            setPlayerCharacters(response.data.map((character) => character.characters));
             // also add the character to the normalizedCampaignData
             if (normalizedCampaignData) {
                 setPlayerCharacters((prevState) => [
@@ -157,7 +157,7 @@ export default function CampaignDialog({
                             message: "Failed to add campaign",
                             severity: "error",
                         });
-                        console.error(error.response);
+                        //console.error(error.response);
                     }
                 } else {
                     // Non-Axios errors
@@ -165,7 +165,7 @@ export default function CampaignDialog({
                         message: error.response.data.message,
                         severity: "error",
                     });
-                    console.error(error);
+                    //console.error(error);
                 }
                 setOpenAlert(true); // Show the alert
             }

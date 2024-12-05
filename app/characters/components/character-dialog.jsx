@@ -62,6 +62,7 @@ import {
     const saveCharacter = async () => {
       if (action === "add") { // If the action is "add"
         try {
+          console.log(characterCards)
           const response = await axios.post("http://localhost:8002/api/v1/characters", characterData); // Send data to the server to add the character
           setCharacterCards((prevCharacterCards) => {
             const newCharacterCards = [...prevCharacterCards, response.data]; // Add the new character to the characterCards

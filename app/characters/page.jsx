@@ -55,7 +55,7 @@ export default function Characters() {
 
   // State for storing individual Character data
   const [characterData, setCharacter] = useState({
-    _id: null,
+    id: null,
     characterName: "",
     race: "",
     className: "",

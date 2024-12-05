@@ -7,7 +7,8 @@ import {
     Button,
   } from "@mui/material";
   import axios from "axios";
-  
+import { useState, useEffect } from "react";
+
   // This component handles showing the dialog for adding or editing a weapon
   export default function WeaponDialog({
     open,
@@ -25,7 +26,28 @@ import {
     const handleCloseDialog = () => {
       setOpen(false); // Close the dialog
     };
+
+    const [randomMessage, setRandomMessage] = useState("");
+    const randomMessages = [
+      "Master the art of filling out forms",
+      "You can do it! Just fill out the fields",
+      "You're almost there! Just fill out the fields",
+      "Don't give up! Fill out the fields",
+      "You're doing great! Just fill out the fields",
+      "Master!! remember to fill out the fields",
+      "You're a wizard! Fill out the fields",
+      "You're a warrior! Fill out the fields",
+    ];
+
+    const RandomPick = () => {
+      const randomIndex = Math.floor(Math.random() * randomMessages.length);
+      setRandomMessage(randomMessages[randomIndex]);
+    }
   
+    useEffect(() => {
+      RandomPick();
+    }, []);
+    
     // Save the weapon data based on whether it's an "add" or "edit" action
     const saveWeapon = async () => {
       if (action == "add") { // If the action is "add"
@@ -33,35 +55,73 @@ import {
           const response = await axios.post("http://localhost:8005/api/v1/weapons", weaponData); // Send data to the server to add the weapon
           setRows([...rows, response.data]); // Add the new weapon to the rows
           setAlert({
-            message: "Weapon added successfully", // Success message
+            message: "Behold! Your weapon is ready to use", // Success message
             severity: "success", // Set the message severity as success
           });
+          handleCloseDialog(); // Close the dialog after saving
+          setOpenAlert(true);
         } catch (error) {
-          //console.error("Error adding weapon: ", error);
-          setAlert({
-            message: "Failed to add weapon", // Error message
-            severity: "error", // Set the message severity as error
-          });
+          if(error.response.status) {
+            switch (error.response.status) {
+              case 400:
+                setAlert({
+                  message: randomMessage, // Error message
+                  severity: "error", // Set the message severity as error
+                });
+                break;
+              default:
+                setAlert({
+                  message: "Failed to add class", // Error message
+                  severity: "error", // Set the message severity as error
+                });
+                break;
+            }
+          }else{
+            // console.error("Error adding classes", error);
+            setAlert({
+              message: randomMessage, // Error message
+              severity: "error" + error, // Set the message severity as error
+            });
+          }
         }
         setOpenAlert(true); // Show the alert
-  
+        RandomPick();
       } else if (action === "edit") { // If the action is "edit"
         try {
           const response = await axios.put(`http://localhost:8005/api/v1/weapons/${weaponData._id}`, weaponData); // Update weapon on the server
           setRows(rows.map((row) => (row._id === weaponData._id ? response.data : row))); // Update the weapon in the rows list
           setAlert({
-            message: "Weapon updated successfully", // Success message
+            message: "Your weapon is reforged—stronger than ever! Ready for battle!”", // Success message
             severity: "success", // Set the message severity as success
           });
+          setOpenAlert(true);
+          handleCloseDialog();
         } catch (error) {
-          setAlert({
-            message: "Failed to update weapon", // Error message
-            severity: "error", // Set the message severity as error
-          });
+          if(error.response.status) {
+            switch (error.response.status) {
+              case 400:
+                setAlert({
+                  message: randomMessage, // Error message
+                  severity: "error", // Set the message severity as error
+                });
+                break;
+              default:
+                setAlert({
+                  message: randomMessage, // Error message
+                  severity: "error", // Set the message severity as error
+                });
+                break;
+            }
+          }else{
+            setAlert({
+              message: "Server Error: " + error, // Error message
+              severity: "error", // Set the message severity as error
+            });
+          }
         }
         setOpenAlert(true); // Show the alert
+        RandomPick();
       }
-      handleCloseDialog(); // Close the dialog after saving
     };
   
     // Handle changes in the input fields and update the weaponData state
