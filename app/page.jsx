@@ -10,7 +10,7 @@ const cardEffect = "SFX/hover_tick.mp3"; // Path to the mouse hover sound effect
 // Array of cards, each representing a section with a title, description, image, and link.
 const card = [
   { name: "Characters", description: "Create your hero and embark on legendary quests!", tittle: "Characters", img: "https://online.anyflip.com/afgs/xkls/files/mobile/163.jpg", link: "/characters" },
-  { name: "Campaigns", description: "Choose your path in epic adventures.", tittle: "Campaigns", img: "https://online.anyflip.com/afgs/xkls/files/mobile/173.jpg", link: "/campaigns" },
+  //{ name: "Campaigns", description: "Choose your path in epic adventures.", tittle: "Campaigns", img: "https://online.anyflip.com/afgs/xkls/files/mobile/173.jpg", link: "/campaigns" },
   { name: "NPCs", description: "Meet the characters who shape your world.", tittle: "NPCs", img: "https://online.anyflip.com/afgs/xkls/files/mobile/11.jpg", link: "/npcs" },
   { name: "Bosses", description: "Defeat mighty bosses to claim your glory!", tittle: "Bosses", img: "https://online.anyflip.com/afgs/xkls/files/mobile/201.jpg", link: "/bosses" },
   { name: "Classes", description: "Choose your class and harness its power.", tittle: "Classes", img: "https://online.anyflip.com/afgs/xkls/files/mobile/45.jpg", link: "/classes" },
